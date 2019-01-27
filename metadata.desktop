@@ -1,0 +1,29 @@
+[Desktop Entry]
+ #Encoding of this file
+ Encoding=UTF-8
+ #The name to be shown in the 'Add Widgets' dialog
+ Name=Kool Morning
+ #Tells KDE this is provides the 'Plasma applet' 
+ ServiceTypes=Plasma/Applet
+ #Tells KDE this is a service of sorts
+ Type=Service
+ #The icon to show in the 'Add Widgets' dialog
+ Icon=network-workgroup
+ #The language your plugin is written in
+ X-Plasma-API=python
+ #The main entrypoint for your plasmoid
+ X-Plasma-MainScript=code/main.py
+ Comment=Tells you if your servers are up and running. Use wake-on-lan to power up.
+ 
+ 
+ X-KDE-PluginInfo-Author=Shining
+ X-KDE-PluginInfo-Email=shining@linuxcondom.net
+ #The internal name of the plasmoid. Your plasmoid gets installed into ~/.kde/share/apps/plasma/<Name>/
+ X-KDE-PluginInfo-Name=kool-morning
+ X-KDE-PluginInfo-Version=0.3.0
+ X-KDE-PluginInfo-Website=http://kde-look.org/content/show.php/Kool+Morning?content=160132
+ X-KDE-PluginInfo-Category=System Monitoring
+ X-KDE-PluginInfo-Depends=icmp
+ X-KDE-PluginInfo-License=GPL
+ #Tells KDE if this plasmoid should be available by default, or if the user needs to jump through hoops to enable it.
+ X-KDE-PluginInfo-EnabledByDefault=true
