@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import sys
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
 from PyKDE4.kdeui import *
@@ -12,17 +13,17 @@ from configuration import *
 import time
 
 class Server:
-  def __init__(self, parent, name, ip, mac, wolEnabled):
+  def __init__(self, parent, name, ip, mac, wolEnabled, devtype):
     self.name = name
     self.ip = ip
     self.mac = mac
     self.parent = parent
     self.button = Plasma.IconWidget(self.parent)
     self.wolEnabled = wolEnabled
+    self.devType = int(devtype)
 
-    self.iconUnknown = KIcon("user-offline")
-    self.iconOnline = KIcon("user-online")
-    self.iconOffline = KIcon("user-busy")
+    self._imageFile = self.parent.package().path() + "contents/images/"
+    self._imageFile += ServerEditor.devTypeL[self.devType] + ".svg"
 
     self.status = "Unknown"
 
@@ -48,15 +49,9 @@ class Server:
   def refreshUI(self):
     msg = self.ip + "\n" + self.mac
 
-    if self.status == 'Offline':
-        self.button.setIcon(self.iconOffline)
-        if self.wolEnabled:
-            msg + "\n\n Click to wake up the server." 
-        # end if
-    elif self.status == 'Online':
-        self.button.setIcon(self.iconOnline)
-    else:
-        self.button.setIcon(self.iconUnknown)
+    self.button.setSvg(self._imageFile, self.status)
+    if self.status == 'Offline' and self.wolEnabled:
+         msg + "\n\n Click to wake up the server." 
     # end if
 
     #And update tooltip's description
@@ -82,13 +77,13 @@ class WakeOnLanApplet(plasmascript.Applet):
                         ip = cc.readEntry("Ip", QVariant("")).toString().__str__()
                         mac = cc.readEntry("MAC", QVariant("") ).toString().__str__()
                         wol = cc.readEntry("wol", QVariant(True) ).toBool()
-                        s.append(Server(self.applet, name, ip, mac, wol))
+                        devtype = int(cc.readEntry("DevType", QVariant(0) ).toString())
+                        s.append(Server(self.applet, name, ip, mac, wol, devtype))
                 # end for
-                print "Servers read from config: "
-                print len(s)
+                sys.stderr.write("Servers read from config: " + str(len(s)))
                 return s
         else:
-                s0 = Server(self.applet, "KDE Homepage", "www.kde.org", "", False)
+                s0 = Server(self.applet, "VisualPharm", "www.visualpharm.com", "", False, 0)
                 return [s0]
         # end if
     # end def readServers
@@ -97,7 +92,8 @@ class WakeOnLanApplet(plasmascript.Applet):
         self.setAspectRatioMode(Plasma.KeepAspectRatio)
         self.setBackgroundHints(Plasma.Applet.DefaultBackground)
 
-        self.resize(200, 150)
+        if self.size().width() == 0:
+           self.resize(200, 150)
 
         self.setHasConfigurationInterface(True)
         self.theme = Plasma.Svg(self)
@@ -159,7 +155,7 @@ class WakeOnLanApplet(plasmascript.Applet):
       # todo: save to config
       newServerList = []
       for t in self.serverEditor.getServers():
-        newServerList.append(Server(self.applet, t[0], t[1], t[2], t[3]))
+        newServerList.append(Server(self.applet, t[0], t[1], t[2], t[3], t[4]))
       # end for
 
       self.saveServers(newServerList)
@@ -179,6 +175,7 @@ class WakeOnLanApplet(plasmascript.Applet):
                 cc.writeEntry("Ip", QVariant(server.ip) )
                 cc.writeEntry("MAC", QVariant(server.mac) )
                 cc.writeEntry("wol", QVariant(server.wolEnabled) )
+                cc.writeEntry("DevType", QVariant(server.devType) )
                 counter += 1
         # end for
     # end def saveServers

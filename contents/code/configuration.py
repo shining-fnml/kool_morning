@@ -44,7 +44,7 @@ class ServerListEditor(QWidget):
                 self.retranslateUi()
 
                 for s in servers:
-                    self.addServer(s.name, s.ip, s.mac, s.wolEnabled)
+                    self.addServer(s.name, s.ip, s.mac, s.wolEnabled, s.devType)
                 # end for
 
                 self.connect(self.AddButton, SIGNAL("clicked(bool)"), self.addClicked)
@@ -54,12 +54,13 @@ class ServerListEditor(QWidget):
 
         # end def __init__
 
-        def addServer(self, name, ip, mac, wolEnabled):
+        def addServer(self, name, ip, mac, wolEnabled, devType):
             item = QListWidgetItem( name + ": " + ip )
             item.setData(32, QVariant(name))
             item.setData(33, QVariant(ip))
             item.setData(34, QVariant(mac))
             item.setData(35, QVariant(wolEnabled))
+            item.setData(36, QVariant(str(devType)))
             self.klistwidget.addItem(item)
         # end def addServer
 
@@ -71,7 +72,7 @@ class ServerListEditor(QWidget):
         def newServerAccepted(self):
             s = self.serverEditor.getServer()
             if self.selectedRow ==None:
-              self.addServer(s[0], s[1], s[2], s[3])
+              self.addServer(s[0], s[1], s[2], s[3], s[4])
             else:
               name = s[0]
               ip = s[1]
@@ -80,6 +81,7 @@ class ServerListEditor(QWidget):
               self.selectedRow.setData(33, QVariant(ip))
               self.selectedRow.setData(34, QVariant(s[2]))
               self.selectedRow.setData(35, QVariant(s[3]))
+              self.selectedRow.setData(36, QVariant(s[4]))
 
             self.newServerDenied()
         # end def configAccepted
@@ -115,6 +117,7 @@ class ServerListEditor(QWidget):
             dialog.setMainWidget(self.serverEditor)
             if row != None:
               self.serverEditor.setServer(self.getCells(row))
+            # end if
 
             self.connect(dialog, SIGNAL("okClicked()"), self.newServerAccepted)
             self.connect(dialog, SIGNAL("cancelClicked()"), self.newServerDenied)
@@ -124,7 +127,7 @@ class ServerListEditor(QWidget):
         #end showDialog
 
         def getCells(self, row):
-          return (row.data(32).toString().__str__(), row.data(33).toString().__str__(), row.data(34).toString().__str__(), row.data(35).toBool())
+          return (row.data(32).toString().__str__(), row.data(33).toString().__str__(), row.data(34).toString().__str__(), row.data(35).toBool(), row.data(36).toString().__str__())
 
         def getServers(self):
           s = []
@@ -144,6 +147,7 @@ class ServerListEditor(QWidget):
 # end class FilterEditor
 
 class ServerEditor(QWidget):
+    devTypeL = [ "Generic", "AccessPoint", "Desktop", "LinuxDesktop", "Notebook", "Phone", "Printer", "Router" ]
     def __init__(self):
         QWidget.__init__(self)
 
@@ -173,6 +177,14 @@ class ServerEditor(QWidget):
         self.lineEditMac = QLineEdit(self)
         self.lineEditMac.setObjectName("lineEdit_2")
         self.gridLayout.addWidget(self.lineEditMac, 3, 1, 1, 1)
+        self._label_1 = QLabel(self)
+        self._label_1.setObjectName("label_1")
+        self.gridLayout.addWidget(self._label_1, 4, 0, 1, 1)
+        self._comboBox = QComboBox(self)
+        for index, item in enumerate(self.devTypeL):
+           self._comboBox.addItem(QString(item), 36)
+        # end for
+        self.gridLayout.addWidget(self._comboBox, 4, 1, 1, 1)
         self.gridLayout_2.addLayout(self.gridLayout, 0, 0, 1, 1)
         spacerItem = QSpacerItem(20, 40, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.gridLayout_2.addItem(spacerItem, 1, 0, 1, 1)
@@ -189,10 +201,11 @@ class ServerEditor(QWidget):
         self.label_3.setText(i18n("IP or hostname"))
         self.checkBox.setText(i18n("Enable Wak-On-Lan"))
         self.label_2.setText(i18n("MAC-Address"))
+        self._label_1.setText(i18n("Device type"))
     # end def retranslateUi
 
     def getServer(self):
-        return (self.lineEditName.text(), self.lineEditIp.text(), self.lineEditMac.text(), self.checkBox.isChecked())
+        return (self.lineEditName.text(), self.lineEditIp.text(), self.lineEditMac.text(), self.checkBox.isChecked(), self._comboBox.currentIndex())
     # end def getServer
 
     def setServer(self, row):
@@ -200,6 +213,7 @@ class ServerEditor(QWidget):
         self.lineEditIp.setText(row[1])
         self.lineEditMac.setText(row[2])
         self.checkBox.setChecked(row[3])
+        self._comboBox.setCurrentIndex(int(row[4]))
     # end def setServer
 
 # end class ServeEditor
