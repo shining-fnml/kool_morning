@@ -31,9 +31,17 @@ Item {
 	property string status_vicious: "vicious"
 	property string status_www_google_com: "google"
 	property string status_www_repubblica_it: "repubblica"
-	property bool tooltip_visible: false
-	property bool tooltip_visible2: false
 	property var dynamic_model: ({})
+
+	function dynamic_model_update()
+	{
+		var model_new = [ ]
+		for (var iter in dynamic_model) {
+			var current = root.dynamic_model[iter]
+			model_new[iter] = { host: current.host, icon: current.icon, mac: current.mac, status: current.status, tooltip: current.tooltip, wol: current.wol }
+		}
+		root.dynamic_model = model_new
+	}
 
 	readonly property QtObject source: PlasmaCore.DataSource {
 		id: dataSource
@@ -45,7 +53,6 @@ Item {
 			connectSource(source)
 		}
 		onDataChanged: {
-			var model_new = [ ]
 			for (var iter in connectedSources) {
 				var a_key = connectedSources[iter]
 				var target = "status_" + a_key.replace(/\./g, '_');
@@ -54,11 +61,9 @@ Item {
 				print("target: " + target)
 				*/
 				root[target] = a_key + "\n" + data[a_key].status
-				var current = root.dynamic_model[iter]
 				root.dynamic_model[iter].status = data[a_key].status
-				model_new[iter] = { host: current.host, icon: current.icon, mac: current.mac, status: current.status, wol: current.wol }
 			}
-			root.dynamic_model = model_new
+			dynamic_model_update()
 		}
 	}
 
@@ -90,9 +95,13 @@ Item {
 						/*
 						onPressed: { root.overlay= "#80ff00ff" }
 						onReleased: { root.overlay= "#80ffff00" }
-						onEntered: { root.tooltip_visible = true }
-						onExited: { root.tooltip_visible = false }
 						*/
+					        onEntered: { root.dynamic_model[index].tooltip = true; root.dynamic_model_update() }
+						onExited: { root.dynamic_model[index].tooltip = false; root.dynamic_model_update() }
+					}
+					ToolTip {
+						visible: modelData.tooltip
+						text: modelData.host
 					}
 				}
 		}
@@ -109,9 +118,9 @@ Item {
 	}
 	Component.onCompleted: {
 		// available icons = [ "AccessPoint", "Generic", "Notebook", "Printer", "Desktop", "LinuxDesktop", "Phone", "Router" ]
-		var google = { host: "www.google.com", icon: "Generic", mac: "", status: "Unknown", wol: false }
-		var repubblica = { host: "www.repubblica.it", icon: "Generic", mac: "", status: "Unknown", wol: false }
-		var vicious = { host: "vicious", icon: "LinuxDesktop", mac: "", status: "Unknown", wol: false }
+		var google = { host: "www.google.com", icon: "Generic", mac: "", status: "Unknown", tooltip: false, wol: false }
+		var repubblica = { host: "www.repubblica.it", icon: "Generic", mac: "", status: "Unknown", tooltip: false, wol: false }
+		var vicious = { host: "vicious", icon: "LinuxDesktop", mac: "", status: "Unknown", tooltip: false, wol: false }
 		dynamic_model = [ google, repubblica, vicious ]
 		print("Completed Running!")
 	}
