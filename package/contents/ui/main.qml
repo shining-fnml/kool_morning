@@ -31,10 +31,9 @@ Item {
 	property string status_vicious: "vicious"
 	property string status_www_google_com: "google"
 	property string status_www_repubblica_it: "repubblica"
-	property string overlay: "#00FFFFFF"
 	property bool tooltip_visible: false
 	property bool tooltip_visible2: false
-	property var dynamic_model
+	property var dynamic_model: ({})
 
 	readonly property QtObject source: PlasmaCore.DataSource {
 		id: dataSource
@@ -46,6 +45,7 @@ Item {
 			connectSource(source)
 		}
 		onDataChanged: {
+			var model_new = [ ]
 			for (var iter in connectedSources) {
 				var a_key = connectedSources[iter]
 				var target = "status_" + a_key.replace(/\./g, '_');
@@ -54,23 +54,15 @@ Item {
 				print("target: " + target)
 				*/
 				root[target] = a_key + "\n" + data[a_key].status
-				if (a_key != "vicious") {
-					continue
-				}
-				if (data[a_key].status == "Offline") {
-					root.overlay= "#80ff0000"
-				}
-				else if (data[a_key].status == "Online") {
-					root.overlay= "#8000ff00"
-				}
-				else {
-					root.overlay= "#00ffffff"
-				}
+				var current = root.dynamic_model[iter]
+				root.dynamic_model[iter].status = data[a_key].status
+				model_new[iter] = { host: current.host, icon: current.icon, mac: current.mac, status: current.status, wol: current.wol }
 			}
+			root.dynamic_model = model_new
 		}
 	}
 
-	Row {
+	Flow {
 		id: host
 		anchors.fill: parent
 		Repeater {
@@ -86,24 +78,21 @@ Item {
 					Layout.fillWidth: true
 					*/
 					fillMode: Image.PreserveAspectFit
-					source: "../images/" + modelData.icon
+					source: "../images/" + modelData.status + "/" + modelData.icon + ".svg"
 					smooth: true
 					visible: true
 					signal clicked
 					MouseArea {
 						anchors.fill: parent
 						hoverEnabled: true
-						// onClicked: { host.clicked();}
 						onClicked: { print(modelData.host) }
+						// onClicked: { host.clicked();}
+						/*
 						onPressed: { root.overlay= "#80ff00ff" }
 						onReleased: { root.overlay= "#80ffff00" }
 						onEntered: { root.tooltip_visible = true }
 						onExited: { root.tooltip_visible = false }
-					}
-					ColorOverlay {
-						anchors.fill: parent
-						source: parent
-						color: overlay
+						*/
 					}
 				}
 		}
@@ -119,10 +108,10 @@ Item {
 		return ret
 	}
 	Component.onCompleted: {
-		// available icons = [ "AccessPoint.svg", "Generic.svg", "Notebook.svg", "Printer.svg", "Desktop.svg", "LinuxDesktop.svg", "Phone.svg", "Router.svg" ]
-		var google = { host: "www.google.com", icon: "Generic.svg", mac: "", wol: false }
-		var repubblica = { host: "www.repubblica.it", icon: "Generic.svg", mac: "", wol: false }
-		var vicious = { host: "vicious", icon: "LinuxDesktop.svg", mac: "", wol: false }
+		// available icons = [ "AccessPoint", "Generic", "Notebook", "Printer", "Desktop", "LinuxDesktop", "Phone", "Router" ]
+		var google = { host: "www.google.com", icon: "Generic", mac: "", status: "Unknown", wol: false }
+		var repubblica = { host: "www.repubblica.it", icon: "Generic", mac: "", status: "Unknown", wol: false }
+		var vicious = { host: "vicious", icon: "LinuxDesktop", mac: "", status: "Unknown", wol: false }
 		dynamic_model = [ google, repubblica, vicious ]
 		print("Completed Running!")
 	}
