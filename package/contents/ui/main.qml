@@ -19,6 +19,7 @@
 
 import QtQuick 2.1
 import QtQuick.Layouts 1.1
+import QtGraphicalEffects 1.0
 import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.plasmoid 2.0
 import org.kde.plasma.components 2.0 as PlasmaComponents
@@ -26,17 +27,16 @@ import org.kde.plasma.components 2.0 as PlasmaComponents
 Item {
 	id: root
 
+	property string status_vicious: "vicious"
 	property string status_www_google_com: "google"
 	property string status_www_repubblica_it: "repubblica"
+	property string overlay: "#00FFFFFF"
 
 	readonly property QtObject source: PlasmaCore.DataSource {
 		id: dataSource
 		engine: "icmp"
 		connectedSources: ["www.google.com", "www.repubblica.it"]
 		interval: 500
-		/*
-		connectedSources: ["Local"]
- */
 		onSourceAdded: {
 			connectSource(source)
 		}
@@ -47,32 +47,47 @@ Item {
 				var target = "status_" + a_key.replace(/\./g, '_');
 				print("target: " + target)
 				root[target] = a_key + "\n" + data[a_key].status
+				if (a_key != "vicious") {
+					continue
+				}
+				if (data[a_key].status == "Offline") {
+					root.overlay= "#80ff0000"
+				}
+				else if (data[a_key].status == "Online") {
+					root.overlay= "#8000ff00"
+				}
+				else {
+					root.overlay= "#00ffffff"
+				}
 			}
 		}
 	}
 
 	// Plasmoid.fullRepresentation: ColumnLayout {
-	Row {
+	RowLayout {
 		id: son
 		anchors.fill: parent
-		/*
 		Image {
+			id: phone
+			width: 100
+			height: 100
 			Layout.fillHeight: true
 			Layout.fillWidth: true
 			fillMode: Image.PreserveAspectFit
-			source: "../images/pairs.svgz"
+			source: "../images/Phone.svg"
+			smooth: true
+			visible: false
+			/*
+			ToolTip.visible: down
+			ToolTip.text: qsTr("vicious")
+			*/
+
 		}
-		*/
-		PlasmaComponents.Label {
-			Layout.alignment: Qt.AlignCenter
-			text: status_www_google_com
-		}
-		PlasmaComponents.Label {
-			Layout.alignment: Qt.AlignCenter
-			text: status_www_repubblica_it
-		}
-		PlasmaComponents.Button {
-			text: "This is a button!"
+		ColorOverlay {
+			id: co
+			anchors.fill: phone
+			source: phone
+			color: overlay
 		}
 	}
 
@@ -85,18 +100,5 @@ Item {
 		}
 		return ret
 	}
-
-	/*
-	readonly property string status_fn: {
-		var ret = "";
-		var found = false;
-		for (var v in dataSource.connectedSources) {
-			var a_key = connectedSources[iter]
-			var value = dataSource.data[a_key].status
-			print("status_fn: " + value)
-			ret = ret + value + "\n"
-		}
-		return ret
-	}
-	*/
+	Component.onCompleted: print("Completed Running!")
 }
