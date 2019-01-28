@@ -28,9 +28,8 @@ import org.kde.plasma.components 2.0 as PlasmaComponents
 Item {
 	id: root
 
-	property string status_vicious: "vicious"
-	property string status_www_google_com: "google"
-	property string status_www_repubblica_it: "repubblica"
+	property int clicked_pointer: -1
+	property int tooltip_pointer: -1
 	property var dynamic_model: ({})
 
 	function dynamic_model_update()
@@ -38,7 +37,7 @@ Item {
 		var model_new = [ ]
 		for (var iter in dynamic_model) {
 			var current = root.dynamic_model[iter]
-			model_new[iter] = { host: current.host, icon: current.icon, mac: current.mac, status: current.status, tooltip: current.tooltip, wol: current.wol }
+			model_new[iter] = { host: current.host, icon: current.icon, mac: current.mac, status: current.status, wol: current.wol }
 		}
 		root.dynamic_model = model_new
 	}
@@ -55,12 +54,9 @@ Item {
 		onDataChanged: {
 			for (var iter in connectedSources) {
 				var a_key = connectedSources[iter]
-				var target = "status_" + a_key.replace(/\./g, '_');
 				/*
 				print(a_key + ": " + data[a_key].status)
-				print("target: " + target)
 				*/
-				root[target] = a_key + "\n" + data[a_key].status
 				root.dynamic_model[iter].status = data[a_key].status
 			}
 			dynamic_model_update()
@@ -78,30 +74,29 @@ Item {
 					id: host
 					width: 64
 					height: 64
-					/*
-					Layout.fillHeight: true
-					Layout.fillWidth: true
-					*/
 					fillMode: Image.PreserveAspectFit
 					source: "../images/" + modelData.status + "/" + modelData.icon + ".svg"
 					smooth: true
 					visible: true
-					signal clicked
 					MouseArea {
 						anchors.fill: parent
 						hoverEnabled: true
-						onClicked: { print(modelData.host) }
-						// onClicked: { host.clicked();}
-						/*
-						onPressed: { root.overlay= "#80ff00ff" }
-						onReleased: { root.overlay= "#80ffff00" }
-						*/
-					        onEntered: { root.dynamic_model[index].tooltip = true; root.dynamic_model_update() }
-						onExited: { root.dynamic_model[index].tooltip = false; root.dynamic_model_update() }
+						onPressed: {
+							if (modelData.status=="Offline" && modelData.wol) {
+								root.clicked_pointer = index } }
+						onReleased: { root.clicked_pointer = -1 }
+					        onEntered: { root.tooltip_pointer = index }
+						onExited: { root.tooltip_pointer = -1 }
 					}
 					ToolTip {
-						visible: modelData.tooltip
+						visible: root.tooltip_pointer == index
 						text: modelData.host
+						delay: 0
+					}
+					ColorOverlay {
+						anchors.fill: parent
+						source: parent
+						color: { return root.clicked_pointer == index ? "#40ffff00" : "transparent" }
 					}
 				}
 		}
@@ -118,9 +113,9 @@ Item {
 	}
 	Component.onCompleted: {
 		// available icons = [ "AccessPoint", "Generic", "Notebook", "Printer", "Desktop", "LinuxDesktop", "Phone", "Router" ]
-		var google = { host: "www.google.com", icon: "Generic", mac: "", status: "Unknown", tooltip: false, wol: false }
-		var repubblica = { host: "www.repubblica.it", icon: "Generic", mac: "", status: "Unknown", tooltip: false, wol: false }
-		var vicious = { host: "vicious", icon: "LinuxDesktop", mac: "", status: "Unknown", tooltip: false, wol: false }
+		var google = { host: "www.google.com", icon: "Generic", mac: "", status: "Unknown", wol: false }
+		var repubblica = { host: "www.repubblica.it", icon: "Generic", mac: "", status: "Unknown", wol: false }
+		var vicious = { host: "vicious", icon: "LinuxDesktop", mac: "", status: "Unknown", wol: true }
 		dynamic_model = [ google, repubblica, vicious ]
 		print("Completed Running!")
 	}
