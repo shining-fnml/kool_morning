@@ -33,6 +33,8 @@ Item {
 	property string status_www_repubblica_it: "repubblica"
 	property string overlay: "#00FFFFFF"
 	property bool tooltip_visible: false
+	property bool tooltip_visible2: false
+	property var dynamic_model
 
 	readonly property QtObject source: PlasmaCore.DataSource {
 		id: dataSource
@@ -68,52 +70,43 @@ Item {
 		}
 	}
 
-	// Plasmoid.fullRepresentation: ColumnLayout {
-	RowLayout {
-		/*
-		id: son
-	       Item {
-		*/
+	Row {
+		id: host
 		anchors.fill: parent
-		       id: monster
-		       Image {
-			       id: phone
-			       width: 64
-			       height: 64
-			       Layout.fillHeight: true
-			       Layout.fillWidth: true
-			       fillMode: Image.PreserveAspectFit
-			       source: "../images/Phone.svg"
-			       smooth: true
-			       visible: false
-			       signal clicked
-			       ToolTip {
-				       id: tooltip
-				       // width: 300
-				       font.pointSize: 12
-				       text: "vicious"
-				       visible: tooltip_visible
-			       }
-		       }
-		       ColorOverlay {
-			       id: co
-			       anchors.fill: monster
-			       // Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
-			       source: phone
-			       color: overlay
-		       }
-		       MouseArea {
-			       anchors.fill: phone
-			       hoverEnabled: true
-			       onClicked: { phone.clicked();}
-			       onPressed: { root.overlay= "#80ff00ff" }
-			       onReleased: { root.overlay= "#80ffff00" }
-			       onEntered: { root.tooltip_visible = true }
-			       onExited: { root.tooltip_visible = false }
-		       }
-		       /*
+		Repeater {
+			model: dynamic_model
+
+			delegate:
+				Image {
+					id: host
+					width: 64
+					height: 64
+					/*
+					Layout.fillHeight: true
+					Layout.fillWidth: true
+					*/
+					fillMode: Image.PreserveAspectFit
+					source: "../images/" + modelData.icon
+					smooth: true
+					visible: true
+					signal clicked
+					MouseArea {
+						anchors.fill: parent
+						hoverEnabled: true
+						// onClicked: { host.clicked();}
+						onClicked: { print(modelData.host) }
+						onPressed: { root.overlay= "#80ff00ff" }
+						onReleased: { root.overlay= "#80ffff00" }
+						onEntered: { root.tooltip_visible = true }
+						onExited: { root.tooltip_visible = false }
+					}
+					ColorOverlay {
+						anchors.fill: parent
+						source: parent
+						color: overlay
+					}
+				}
 		}
-		*/
 	}
 
 	readonly property string site_fn: {
@@ -125,5 +118,12 @@ Item {
 		}
 		return ret
 	}
-	Component.onCompleted: print("Completed Running!")
+	Component.onCompleted: {
+		// available icons = [ "AccessPoint.svg", "Generic.svg", "Notebook.svg", "Printer.svg", "Desktop.svg", "LinuxDesktop.svg", "Phone.svg", "Router.svg" ]
+		var google = { host: "www.google.com", icon: "Generic.svg", mac: "", wol: false }
+		var repubblica = { host: "www.repubblica.it", icon: "Generic.svg", mac: "", wol: false }
+		var vicious = { host: "vicious", icon: "LinuxDesktop.svg", mac: "", wol: false }
+		dynamic_model = [ google, repubblica, vicious ]
+		print("Completed Running!")
+	}
 }
