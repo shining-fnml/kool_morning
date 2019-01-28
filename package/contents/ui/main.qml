@@ -19,6 +19,7 @@
 
 import QtQuick 2.1
 import QtQuick.Layouts 1.1
+import QtQuick.Controls 2.4
 import QtGraphicalEffects 1.0
 import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.plasmoid 2.0
@@ -31,21 +32,25 @@ Item {
 	property string status_www_google_com: "google"
 	property string status_www_repubblica_it: "repubblica"
 	property string overlay: "#00FFFFFF"
+	property bool tooltip_visible: false
 
 	readonly property QtObject source: PlasmaCore.DataSource {
 		id: dataSource
 		engine: "icmp"
-		connectedSources: ["www.google.com", "www.repubblica.it"]
+		connectedSources: ["www.google.com", "www.repubblica.it", "vicious"]
 		interval: 500
 		onSourceAdded: {
+			print("adding " + source)
 			connectSource(source)
 		}
 		onDataChanged: {
 			for (var iter in connectedSources) {
 				var a_key = connectedSources[iter]
-				print(a_key + ": " + data[a_key].status)
 				var target = "status_" + a_key.replace(/\./g, '_');
+				/*
+				print(a_key + ": " + data[a_key].status)
 				print("target: " + target)
+				*/
 				root[target] = a_key + "\n" + data[a_key].status
 				if (a_key != "vicious") {
 					continue
@@ -65,30 +70,50 @@ Item {
 
 	// Plasmoid.fullRepresentation: ColumnLayout {
 	RowLayout {
+		/*
 		id: son
+	       Item {
+		*/
 		anchors.fill: parent
-		Image {
-			id: phone
-			width: 100
-			height: 100
-			Layout.fillHeight: true
-			Layout.fillWidth: true
-			fillMode: Image.PreserveAspectFit
-			source: "../images/Phone.svg"
-			smooth: true
-			visible: false
-			/*
-			ToolTip.visible: down
-			ToolTip.text: qsTr("vicious")
-			*/
-
+		       id: monster
+		       Image {
+			       id: phone
+			       width: 64
+			       height: 64
+			       Layout.fillHeight: true
+			       Layout.fillWidth: true
+			       fillMode: Image.PreserveAspectFit
+			       source: "../images/Phone.svg"
+			       smooth: true
+			       visible: false
+			       signal clicked
+			       ToolTip {
+				       id: tooltip
+				       // width: 300
+				       font.pointSize: 12
+				       text: "vicious"
+				       visible: tooltip_visible
+			       }
+		       }
+		       ColorOverlay {
+			       id: co
+			       anchors.fill: monster
+			       // Layout.alignment: Qt.AlignVCenter | Qt.AlignLeft
+			       source: phone
+			       color: overlay
+		       }
+		       MouseArea {
+			       anchors.fill: phone
+			       hoverEnabled: true
+			       onClicked: { phone.clicked();}
+			       onPressed: { root.overlay= "#80ff00ff" }
+			       onReleased: { root.overlay= "#80ffff00" }
+			       onEntered: { root.tooltip_visible = true }
+			       onExited: { root.tooltip_visible = false }
+		       }
+		       /*
 		}
-		ColorOverlay {
-			id: co
-			anchors.fill: phone
-			source: phone
-			color: overlay
-		}
+		*/
 	}
 
 	readonly property string site_fn: {
