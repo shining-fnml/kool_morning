@@ -72,12 +72,13 @@ Item {
 			model: dynamic_model
 
 			delegate:
-				Image {
+				PlasmaCore.SvgItem {
 					id: host
 					width: 64
 					height: 64
-					fillMode: Image.PreserveAspectFit
-					source: "../images/" + modelData.status + "/" + modelData.icon + ".svg"
+					// fillMode: Image.PreserveAspectFit
+					elementId: modelData.status
+					svg: PlasmaCore.Svg { imagePath: "/usr/local/src/kool_morning/package/contents/images/" + modelData.icon + ".svg" }
 					smooth: true
 					visible: true
 					MouseArea {
