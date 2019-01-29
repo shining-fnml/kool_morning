@@ -45,18 +45,20 @@ Item {
 	readonly property QtObject source: PlasmaCore.DataSource {
 		id: dataSource
 		engine: "icmp"
-		connectedSources: ["www.google.com", "www.repubblica.it", "vicious"]
+		connectedSources: {
+			var result = [ ]
+			for (var iter in dynamic_model) {
+				result[iter] = dynamic_model[iter].host
+			}
+			return result
+		}
 		interval: 500
 		onSourceAdded: {
-			print("adding " + source)
 			connectSource(source)
 		}
 		onDataChanged: {
 			for (var iter in connectedSources) {
 				var a_key = connectedSources[iter]
-				/*
-				print(a_key + ": " + data[a_key].status)
-				*/
 				root.dynamic_model[iter].status = data[a_key].status
 			}
 			dynamic_model_update()
@@ -117,6 +119,5 @@ Item {
 		var repubblica = { host: "www.repubblica.it", icon: "Generic", mac: "", status: "Unknown", wol: false }
 		var vicious = { host: "vicious", icon: "LinuxDesktop", mac: "", status: "Unknown", wol: true }
 		dynamic_model = [ google, repubblica, vicious ]
-		print("Completed Running!")
 	}
 }
