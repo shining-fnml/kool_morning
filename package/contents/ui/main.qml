@@ -27,17 +27,6 @@ import org.kde.plasma.components 2.0 as PlasmaComponents
 
 import org.kde.plasma.private.kool_morning 1.0
 
-/*
-Item {
-    Plasmoid.fullRepresentation: ColumnLayout {
-        anchors.fill: parent
-        PlasmaComponents.Label {
-            Layout.alignment: Qt.AlignCenter
-            text: HelloWorld.text
-        }
-    }
-}
-*/
 Item {
 	id: root
 
@@ -101,9 +90,12 @@ Item {
 						onPressed: {
 							if (modelData.status=="Offline" && modelData.wol) {
 								root.clicked_pointer = index } }
-						onReleased: { root.clicked_pointer = -1 }
-						onEntered: { print("DirPath: " + Custom.doSomething()); root.tooltip_pointer = index }
-						onExited: { print("FilePath: " + Custom.someProperty); root.tooltip_pointer = -1 }
+						onReleased: {
+							if (modelData.status=="Offline" && modelData.wol) {
+								Custom.wake(modelData.host, modelData.mac) }
+							root.clicked_pointer = -1 }
+						onEntered: { root.tooltip_pointer = index }
+						onExited: { root.tooltip_pointer = -1 }
 					}
 					ToolTip {
 						visible: root.tooltip_pointer == index
@@ -132,7 +124,8 @@ Item {
 		// available icons = [ "AccessPoint", "Generic", "Notebook", "Printer", "Desktop", "LinuxDesktop", "Phone", "Router" ]
 		var google = { host: "www.google.com", icon: "Generic", mac: "", status: "Unknown", wol: false }
 		var repubblica = { host: "www.repubblica.it", icon: "Generic", mac: "", status: "Unknown", wol: false }
-		var vicious = { host: "vicious", icon: "LinuxDesktop", mac: "", status: "Unknown", wol: true }
+		var vicious = { host: "vicious", icon: "LinuxDesktop", mac: "00:C0:49:55:74:3E", status: "Unknown", wol: true }
 		dynamic_model = [ google, repubblica, vicious ]
+		Custom.someProperty = 2
 	}
 }

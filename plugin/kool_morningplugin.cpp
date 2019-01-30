@@ -28,27 +28,15 @@
 #include <QDebug>
 #include <QCoreApplication>
 
-#include <iostream>
-
-void Logic::setSomeProperty(int val)
+void Logic::wake(QString host, QString mac)
 {
-	std::cerr << "Logic:setSomeProperty()" << std::endl;
-	qDebug() << "Logic:setSomeProperty()";
-	m_someProperty = val;
-	emit somePropertyChanged(val);
+	qDebug() << "Logic:wake()";
+	qDebug() << "host: " << host;
+	qDebug() << "mac: " << mac;
+	emit somePropertyChanged(1);
 }
 
-static QJSValue singletonTypeExampleProvider(QQmlEngine* engine, QJSEngine* scriptEngine)
-{
-    Q_UNUSED(engine)
-
-    QJSValue custom = scriptEngine->newObject();
-    custom.setProperty("DirPath", QCoreApplication::applicationDirPath());
-    custom.setProperty("FilePath", QCoreApplication::applicationFilePath());
-    return custom;
-}
-
-static QObject *example_qobject_singletontype_provider(QQmlEngine *engine, QJSEngine *scriptEngine)
+static QObject *singletontype_provider(QQmlEngine *engine, QJSEngine *scriptEngine)
 {
 	Q_UNUSED(engine)
 	Q_UNUSED(scriptEngine)
@@ -62,6 +50,5 @@ void kool_morningPlugin::registerTypes(const char* uri)
 {
     Q_ASSERT(uri == QLatin1String("org.kde.plasma.private.kool_morning"));
 
-    qmlRegisterSingletonType(uri, 1, 0, "Custom", singletonTypeExampleProvider);
-    qmlRegisterSingletonType<Logic>(uri, 1, 0, "Custom", example_qobject_singletontype_provider);
+    qmlRegisterSingletonType<Logic>(uri, 1, 0, "Custom", singletontype_provider);
 }

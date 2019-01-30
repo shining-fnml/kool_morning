@@ -43,10 +43,10 @@ public:
 
     ~Logic() {}
 
-    Q_INVOKABLE int doSomething() { setSomeProperty(5); return m_someProperty; }
+    Q_INVOKABLE void wake(QString host, QString mac);
 
     int someProperty() const { return m_someProperty; }
-    void setSomeProperty(int val);
+    void setSomeProperty(int val) {};
 
 signals:
     void somePropertyChanged(int newValue);
