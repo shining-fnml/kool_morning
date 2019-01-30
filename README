@@ -39,7 +39,7 @@ or view it with
 plasmoidviewer -a YourAppletName
 
 -- Tutorials and resources --
-The explanation of the template
+The explanation of the QML part of the template
 https://techbase.kde.org/Development/Tutorials/Plasma5/QML2/GettingStarted
 
 Plasma QML API explained

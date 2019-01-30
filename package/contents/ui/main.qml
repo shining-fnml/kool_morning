@@ -25,12 +25,26 @@ import org.kde.plasma.core 2.0 as PlasmaCore
 import org.kde.plasma.plasmoid 2.0
 import org.kde.plasma.components 2.0 as PlasmaComponents
 
+import org.kde.plasma.private.kool_morning 1.0
+
+/*
+Item {
+    Plasmoid.fullRepresentation: ColumnLayout {
+        anchors.fill: parent
+        PlasmaComponents.Label {
+            Layout.alignment: Qt.AlignCenter
+            text: HelloWorld.text
+        }
+    }
+}
+*/
 Item {
 	id: root
 
 	property int clicked_pointer: -1
-	property int tooltip_pointer: -1
 	property var dynamic_model: ({})
+	property int tooltip_pointer: -1
+	readonly property string item_dir: Qt.resolvedUrl(".")
 
 	function dynamic_model_update()
 	{
@@ -78,7 +92,7 @@ Item {
 					height: 64
 					// fillMode: Image.PreserveAspectFit
 					elementId: modelData.status
-					svg: PlasmaCore.Svg { imagePath: "/usr/local/src/kool_morning/package/contents/images/" + modelData.icon + ".svg" }
+					svg: PlasmaCore.Svg { imagePath: item_dir + "../images/" + modelData.icon + ".svg" }
 					smooth: true
 					visible: true
 					MouseArea {
@@ -88,8 +102,8 @@ Item {
 							if (modelData.status=="Offline" && modelData.wol) {
 								root.clicked_pointer = index } }
 						onReleased: { root.clicked_pointer = -1 }
-					        onEntered: { root.tooltip_pointer = index }
-						onExited: { root.tooltip_pointer = -1 }
+						onEntered: { print("DirPath: " + Custom.DirPath); root.tooltip_pointer = index }
+						onExited: { print("FilePath: " + Custom.FilePath); root.tooltip_pointer = -1 }
 					}
 					ToolTip {
 						visible: root.tooltip_pointer == index
