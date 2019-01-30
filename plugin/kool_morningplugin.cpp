@@ -29,10 +29,6 @@
 #include <QDebug>
 #include <QHostInfo>
 
-#include <sys/types.h>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
 #include <arpa/inet.h>
 
 #define MAGIC_SIZE	102
@@ -50,8 +46,8 @@ static void wol(in_addr_t ip_addr, void *tosend)
 
 	/** you need to set this so you can broadcast **/
 	if (setsockopt(udpSocket, SOL_SOCKET, SO_BROADCAST, &broadcast, sizeof broadcast) == -1) {
-		qDebug() << "setsockopt (SO_BROADCAST)";
-		exit(1);
+		qDebug() << "error: setsockopt (SO_BROADCAST)";
+		return;
 	}
 	udpClient.sin_family = AF_INET;
 	udpClient.sin_addr.s_addr = INADDR_ANY;
