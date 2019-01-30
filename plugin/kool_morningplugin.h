@@ -33,7 +33,7 @@ public:
 class Logic : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY (int someProperty READ someProperty WRITE setSomeProperty NOTIFY somePropertyChanged)
+    // Q_PROPERTY (int someProperty READ someProperty WRITE setSomeProperty NOTIFY somePropertyChanged)
 
 public:
     Logic(QObject* parent = 0)
@@ -46,7 +46,7 @@ public:
     Q_INVOKABLE void wake(QString host, QString mac);
 
     int someProperty() const { return m_someProperty; }
-    void setSomeProperty(int val) {};
+    // void setSomeProperty(int val) {};
 
 signals:
     void somePropertyChanged(int newValue);

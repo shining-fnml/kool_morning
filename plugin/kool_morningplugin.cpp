@@ -25,14 +25,82 @@
 #include <QQmlEngine>
 #include <QQmlContext>
 
-#include <QDebug>
 #include <QCoreApplication>
+#include <QDebug>
+#include <QHostInfo>
+
+#include <sys/types.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+#define MAGIC_SIZE	102
+
+/* Stolen from https://shadesfgray.wordpress.com/2010/12/17/wake-on-lan-how-to-tutorial/ */
+static void wol(in_addr_t ip_addr, void *tosend)
+{
+	int udpSocket;
+	struct sockaddr_in udpClient, udpServer;
+	int broadcast = 1;
+	ssize_t sent;
+
+	ip_addr |= 0xFF;
+	udpSocket = socket(AF_INET, SOCK_DGRAM, 0);
+
+	/** you need to set this so you can broadcast **/
+	if (setsockopt(udpSocket, SOL_SOCKET, SO_BROADCAST, &broadcast, sizeof broadcast) == -1) {
+		qDebug() << "setsockopt (SO_BROADCAST)";
+		exit(1);
+	}
+	udpClient.sin_family = AF_INET;
+	udpClient.sin_addr.s_addr = INADDR_ANY;
+	udpClient.sin_port = 0;
+
+	bind(udpSocket, (struct sockaddr*)&udpClient, sizeof(udpClient));
+
+	/** …make the packet as shown above **/
+
+	/** set server end point (the broadcast addres)**/
+	udpServer.sin_family = AF_INET;
+	udpServer.sin_addr.s_addr = htonl(ip_addr);
+	udpServer.sin_port = htons(7);
+
+	/** send the packet **/
+	sent = sendto(udpSocket, tosend, sizeof(unsigned char) * MAGIC_SIZE, 0, (struct sockaddr*)&udpServer, sizeof(udpServer));
+	if (sent != MAGIC_SIZE)
+		qDebug() << "warning: sent " << sent << " bytes instead of " << MAGIC_SIZE;
+}
+
+void mac_to_magic(unsigned char *buffer, QString &mac)
+{
+	unsigned char address[6];
+	mac.replace( ":", "" );
+	mac.replace( "-", "" );
+	bool check;
+	for (int position=0; position<6; position++) {
+		QStringRef ref = QStringRef(&mac, position*2, 2);
+		address[position] = ref.toUShort(&check, 16);
+		buffer[position] = 0xFF;
+	}
+	for (int position=1; position<17; position++) {
+		unsigned char *cursor = buffer+position*6;
+		memcpy((void *)cursor, address, 6);
+	}
+}
 
 void Logic::wake(QString host, QString mac)
 {
-	qDebug() << "Logic:wake()";
-	qDebug() << "host: " << host;
-	qDebug() << "mac: " << mac;
+	unsigned char tosend[MAGIC_SIZE];
+
+	mac_to_magic(tosend, mac);
+	QHostInfo info = QHostInfo::fromName(host);
+	if (info.addresses().isEmpty()) {
+		qDebug() << "cannot find host " << host;
+		return;
+	}
+	QHostAddress address = info.addresses().first();
+	wol(address.toIPv4Address(), tosend);
 	emit somePropertyChanged(1);
 }
 
