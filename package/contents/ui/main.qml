@@ -102,8 +102,8 @@ Item {
 							if (modelData.status=="Offline" && modelData.wol) {
 								root.clicked_pointer = index } }
 						onReleased: { root.clicked_pointer = -1 }
-						onEntered: { print("DirPath: " + Custom.DirPath); root.tooltip_pointer = index }
-						onExited: { print("FilePath: " + Custom.FilePath); root.tooltip_pointer = -1 }
+						onEntered: { print("DirPath: " + Custom.doSomething()); root.tooltip_pointer = index }
+						onExited: { print("FilePath: " + Custom.someProperty); root.tooltip_pointer = -1 }
 					}
 					ToolTip {
 						visible: root.tooltip_pointer == index

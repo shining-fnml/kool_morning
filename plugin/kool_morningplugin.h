@@ -30,4 +30,29 @@ public:
     void registerTypes(const char *uri) override;
 };
 
+class Logic : public QObject
+{
+    Q_OBJECT
+    Q_PROPERTY (int someProperty READ someProperty WRITE setSomeProperty NOTIFY somePropertyChanged)
+
+public:
+    Logic(QObject* parent = 0)
+        : QObject(parent), m_someProperty(0)
+    {
+    }
+
+    ~Logic() {}
+
+    Q_INVOKABLE int doSomething() { setSomeProperty(5); return m_someProperty; }
+
+    int someProperty() const { return m_someProperty; }
+    void setSomeProperty(int val);
+
+signals:
+    void somePropertyChanged(int newValue);
+
+private:
+    int m_someProperty;
+};
+
 #endif // KOOL_MORNINGPLUGIN_H
