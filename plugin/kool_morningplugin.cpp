@@ -41,7 +41,6 @@ static void wol(in_addr_t ip_addr, void *tosend)
 	int broadcast = 1;
 	ssize_t sent;
 
-	ip_addr |= 0xFF;
 	udpSocket = socket(AF_INET, SOCK_DGRAM, 0);
 
 	/** you need to set this so you can broadcast **/
@@ -55,11 +54,9 @@ static void wol(in_addr_t ip_addr, void *tosend)
 
 	bind(udpSocket, (struct sockaddr*)&udpClient, sizeof(udpClient));
 
-	/** …make the packet as shown above **/
-
 	/** set server end point (the broadcast addres)**/
 	udpServer.sin_family = AF_INET;
-	udpServer.sin_addr.s_addr = htonl(ip_addr);
+	udpServer.sin_addr.s_addr = htonl(ip_addr | 0xFF);
 	udpServer.sin_port = htons(7);
 
 	/** send the packet **/
