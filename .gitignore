@@ -1,4 +1,4 @@
 .*.swp
 build
 package/contents/ui/.*.swp
-package/contents/ui/main.qmlc
+package/contents/*/*.qmlc
