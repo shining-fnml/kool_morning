@@ -19,6 +19,7 @@
 import QtQuick 2.2
 // import QtQuick.Controls 2.2 as Controls
 import QtQuick.Controls 1.2 as Controls
+import QtQuick.Controls 2.2 as Controls2
 import QtQuick.Layouts 1.1
 import org.kde.plasma.components 2.0 as PlasmaComponents
 import QtQuick.Dialogs 1.2
@@ -27,10 +28,16 @@ Item
 {
 	id: root
 	signal configurationChanged
+	property var libraryModel: ({})
 
 	function saveConfig() {
-		print("uuid.text: "+uuid.text)
-		plasmoid.configuration.uuid = uuid.text
+		print("uniq: "+JSON.stringify(libraryModel))
+		var line = []
+		for(var i in libraryModel) {
+			line = JSON.stringify(libraryModel[i])
+			print("json[" + i + "]: "+ line)
+		}
+		plasmoid.configuration.json = line
 		/*
 		 var names = []
 		 for(var i in layout.children) {
@@ -44,17 +51,54 @@ Item
 
 	Dialog {
 		id: editDialog
-		title: customizeTitle.checked ? windowTitleField.text : "Hello"
+		title: table.currentRow == -1 ? "Add a new host" : "Edit this one"
 		onAccepted: lastChosen.text = "Accepted " +
-		(clickedButton == StandardButton.Ok ? "(OK)" : (clickedButton == StandardButton.Retry ? "(Retry)" : "(Ignore)"))
+		(clickedButton == StandardButton.Ok ? "(OK)" : "(Ignore)")
 		onRejected: lastChosen.text = "Rejected " +
 		(clickedButton == StandardButton.Close ? "(Close)" : (clickedButton == StandardButton.Abort ? "(Abort)" : "(Cancel)"))
 		modality: Qt.WindowModal
 		onButtonClicked: console.log("clicked button " + clickedButton)
 		standardButtons: StandardButton.Ok|StandardButton.Cancel
 
-		PlasmaComponents.Label {
-			text: "Hello world!"
+		/*
+		 PlasmaComponents.Label {
+			 text: "Hello world! " + table.currentRow
+		 }
+		 */
+		GridLayout {
+			columns: 2
+			PlasmaComponents.Label {
+				text: "Host:"
+			}
+			PlasmaComponents.TextField {
+				id: host
+				placeholderText: "hostname or ip address"
+				text: table.currentRow < 0 ? "" : libraryModel[table.currentRow].host
+			}
+			PlasmaComponents.Label {
+				text: "Type:"
+			}
+			PlasmaComponents.TextField {
+				id: icon
+				placeholderText: "icon"
+				text: table.currentRow < 0 ? "" : libraryModel[table.currentRow].icon
+			}
+			PlasmaComponents.Label {
+				text: "Wake on lane:"
+			}
+			PlasmaComponents.TextField {
+				id: wol
+				placeholderText: "wol"
+				text: table.currentRow < 0 ? "" : libraryModel[table.currentRow].wol
+			}
+			PlasmaComponents.Label {
+				text: "Mac address:"
+			}
+			PlasmaComponents.TextField {
+				id: mac
+				placeholderText: "mac"
+				text: table.currentRow < 0 ? "" : libraryModel[table.currentRow].mac
+			}
 		}
 	}
 
@@ -69,6 +113,10 @@ Item
 				role: "host"
 			}
 			Controls.TableViewColumn {
+				title: "Icon"
+				role: "icon"
+			}
+			Controls.TableViewColumn {
 				title: "wol"
 				role: "wol"
 				width: 50
@@ -77,13 +125,22 @@ Item
 				title: "mac"
 				role: "mac"
 			}
-			model: fileSystemModel
+			model: libraryModel
 		}
-		Controls.Button {
-			id: dialoger
+		Controls2.Button {
+			id: adder
+			icon.name: "entry-new"
 			// text: plasmoid.configuration.uuid
-			text: "click me"
-			onClicked: editDialog.open()
+			text: "Add new host"
+			onClicked: { table.currentRow=-1; editDialog.open()}
+		}
+		Controls2.Button {
+			id: editer
+			// text: plasmoid.configuration.uuid
+			icon.name: "entry-edit"
+			text: "Edit selected host"
+			onClicked: { editDialog.open() }
+			enabled: table.currentRow != -1
 		}
 	}
 	/*
@@ -106,4 +163,11 @@ Item
 		 }
 	 }
 	 */
+	Component.onCompleted: {
+		libraryModel = [
+			{ host: "doraemon", icon: "comic", wol: true, mac: "unknown" },
+			{ host: "scilla", icon: "accesspoint", wol: false, mac: "defined" }
+		]
+		table.currentRow = -1
+	}
 }
