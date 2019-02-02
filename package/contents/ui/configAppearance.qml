@@ -39,8 +39,12 @@ Item
 		root.libraryModel = model_new
 	}
 
-
 	function saveConfig() {
+		plasmoid.configuration.iconsize = iconsize.value
+		plasmoid.configuration.spacing = spacing.value
+	}
+
+	function saveTarget() {
 		plasmoid.configuration.json = JSON.stringify(libraryModel)
 	}
 
@@ -56,7 +60,7 @@ Item
 				mac: mac.text
 			}
 			table_update()
-			saveConfig()
+			saveTarget()
 		}
 		/*
 		onAccepted: lastChosen.text = "Accepted " +
@@ -103,7 +107,7 @@ Item
 				focus: true
 			}
 			PlasmaComponents.Label {
-				text: "Wake on lane:"
+				text: "Wake on lan:"
 			}
 			Controls2.CheckBox {
 				id: wol
@@ -129,40 +133,71 @@ Item
 	Column{
 		anchors.fill: parent
 		id: climber
-		Controls.TableView {
-			id: table
-			width: climber.width
-			Controls.TableViewColumn {
-				title: "Host"
-				role: "host"
+		spacing: 5
+		Controls2.GroupBox {
+			title: qsTr("Icons geometry")
+			RowLayout {
+				anchors.fill: parent
+				PlasmaComponents.Label {
+					text: "Spacing:"
+				}
+				Controls.SpinBox {
+					id: spacing
+					value: plasmoid.configuration.spacing
+				}
+				PlasmaComponents.Label {
+					text: "Size:"
+				}
+				Controls.SpinBox {
+					id: iconsize
+					value: plasmoid.configuration.iconsize
+				}
 			}
-			Controls.TableViewColumn {
-				title: "Icon"
-				role: "icon"
-			}
-			Controls.TableViewColumn {
-				title: "wol"
-				role: "wol"
-				width: 50
-			}
-			Controls.TableViewColumn {
-				title: "mac"
-				role: "mac"
-			}
-			model: libraryModel
 		}
-		Controls2.Button {
-			id: adder
-			icon.name: "entry-new"
-			text: "Add new host"
-			onClicked: { table.currentRow=-1; editDialog.open()}
-		}
-		Controls2.Button {
-			id: editer
-			icon.name: "entry-edit"
-			text: "Edit selected host"
-			onClicked: { editDialog.open() }
-			enabled: table.currentRow != -1
+		Controls2.GroupBox {
+			width: parent.width
+			title: qsTr("Targets")
+			Column {
+				anchors.fill: parent
+				Controls.TableView {
+					id: table
+					width: parent.width
+					Controls.TableViewColumn {
+						title: "Host"
+						role: "host"
+					}
+					Controls.TableViewColumn {
+						title: "Icon"
+						role: "icon"
+					}
+					Controls.TableViewColumn {
+						title: "wol"
+						role: "wol"
+						width: 50
+					}
+					Controls.TableViewColumn {
+						title: "mac"
+						role: "mac"
+					}
+					model: libraryModel
+				}
+				Row {
+					width: parent.width
+					Controls2.Button {
+						id: adder
+						icon.name: "entry-new"
+						text: "Add new host"
+						onClicked: { table.currentRow=-1; editDialog.open()}
+					}
+					Controls2.Button {
+						id: editer
+						icon.name: "entry-edit"
+						text: "Edit selected host"
+						onClicked: { editDialog.open() }
+						enabled: table.currentRow != -1
+					}
+				}
+			}
 		}
 	}
 	Component.onCompleted: {

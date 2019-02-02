@@ -71,14 +71,15 @@ Item {
 	Flow {
 		id: host
 		anchors.fill: parent
+		spacing: plasmoid.configuration.spacing
 		Repeater {
 			model: dynamic_model
 
 			delegate:
 				PlasmaCore.SvgItem {
 					id: host
-					width: 64
-					height: 64
+					width: plasmoid.configuration.iconsize
+					height: plasmoid.configuration.iconsize
 					// fillMode: Image.PreserveAspectFit
 					elementId: modelData.status
 					svg: PlasmaCore.Svg { imagePath: item_dir + "../images/" + modelData.icon + ".svg" }

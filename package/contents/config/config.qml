@@ -22,8 +22,8 @@ import org.kde.plasma.configuration 2.0
 
 ConfigModel {
     ConfigCategory {
-         name: i18nc("@title", "Targets")
-         icon: "drive-removable-media-usb"
+         name: i18nc("@title", "General")
+         icon: "preferences-desktop-user"
          source: "configAppearance.qml"
     }
 }

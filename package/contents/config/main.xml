@@ -5,7 +5,15 @@
       http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
   <kcfgfile name=""/>
 
-  <group name="Targets">
+  <group name="General">
+    <entry name="iconsize" type="Int">
+	    <label>Icon size</label>
+	    <default>64</default>
+    </entry>
+    <entry name="spacing" type="Int">
+	    <label>Spacing</label>
+	    <default>5</default>
+    </entry>
     <entry name="json" type="String">
     </entry>
   </group>
