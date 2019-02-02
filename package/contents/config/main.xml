@@ -6,7 +6,7 @@
   <kcfgfile name=""/>
 
   <group name="Targets">
-    <entry name="json" type="StringList">
+    <entry name="json" type="String">
     </entry>
   </group>
 

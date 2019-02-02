@@ -28,52 +28,70 @@ Item
 {
 	id: root
 	signal configurationChanged
-	property var libraryModel: ({})
+	property var libraryModel: {[]}
+
+	function table_update()
+	{
+		var model_new = [ ]
+		for (var iter in libraryModel) {
+			model_new[iter] = libraryModel[iter]
+		}
+		root.libraryModel = model_new
+	}
+
 
 	function saveConfig() {
-		print("uniq: "+JSON.stringify(libraryModel))
-		var line = []
-		for(var i in libraryModel) {
-			line = JSON.stringify(libraryModel[i])
-			print("json[" + i + "]: "+ line)
-		}
-		plasmoid.configuration.json = line
-		/*
-		 var names = []
-		 for(var i in layout.children) {
-			 var cur = layout.children[i]
-			 if (cur.checked)
-			 names.push(cur.name)
-		 }
-		 plasmoid.configuration.key = names
-		 */
+		plasmoid.configuration.json = JSON.stringify(libraryModel)
 	}
 
 	Dialog {
 		id: editDialog
 		title: table.currentRow == -1 ? "Add a new host" : "Edit this one"
+		onAccepted: {
+			var index = table.currentRow < 0 ? libraryModel.length : table.currentRow
+			libraryModel[index] = {
+				host: host.text,
+				icon: icon.text,
+				wol: wol.checked,
+				mac: mac.text
+			}
+			table_update()
+			saveConfig()
+		}
+		/*
 		onAccepted: lastChosen.text = "Accepted " +
 		(clickedButton == StandardButton.Ok ? "(OK)" : "(Ignore)")
 		onRejected: lastChosen.text = "Rejected " +
 		(clickedButton == StandardButton.Close ? "(Close)" : (clickedButton == StandardButton.Abort ? "(Abort)" : "(Cancel)"))
+		onButtonClicked: print("clicked button " + clickedButton)
+		*/
 		modality: Qt.WindowModal
-		onButtonClicked: console.log("clicked button " + clickedButton)
 		standardButtons: StandardButton.Ok|StandardButton.Cancel
 
-		/*
-		 PlasmaComponents.Label {
-			 text: "Hello world! " + table.currentRow
-		 }
-		 */
 		GridLayout {
+			id: layout
 			columns: 2
+			property string host_start: {
+				return table.currentRow < 0 ? "" : libraryModel[table.currentRow].host
+			}
+			property string icon_start: {
+				return table.currentRow < 0 ? "" : libraryModel[table.currentRow].icon
+			}
+			property bool wol_start: {
+				return table.currentRow < 0 ? false : libraryModel[table.currentRow].wol
+			}
+			property string mac_start: {
+				return table.currentRow < 0 ? "" : libraryModel[table.currentRow].mac
+			}
+
 			PlasmaComponents.Label {
-				text: "Host:"
+				text: "Hostname or IP address:"
 			}
 			PlasmaComponents.TextField {
 				id: host
-				placeholderText: "hostname or ip address"
-				text: table.currentRow < 0 ? "" : libraryModel[table.currentRow].host
+				placeholderText: "127.0.0.1"
+				text: layout.host_start
+				focus: true
 			}
 			PlasmaComponents.Label {
 				text: "Type:"
@@ -81,23 +99,29 @@ Item
 			PlasmaComponents.TextField {
 				id: icon
 				placeholderText: "icon"
-				text: table.currentRow < 0 ? "" : libraryModel[table.currentRow].icon
+				text: layout.icon_start
+				focus: true
 			}
 			PlasmaComponents.Label {
 				text: "Wake on lane:"
 			}
-			PlasmaComponents.TextField {
+			Controls2.CheckBox {
 				id: wol
-				placeholderText: "wol"
-				text: table.currentRow < 0 ? "" : libraryModel[table.currentRow].wol
+				text: i18n("wol")
+				checked: layout.wol_start
+				focus: true
 			}
 			PlasmaComponents.Label {
 				text: "Mac address:"
 			}
 			PlasmaComponents.TextField {
 				id: mac
-				placeholderText: "mac"
-				text: table.currentRow < 0 ? "" : libraryModel[table.currentRow].mac
+				placeholderText: "00:00:00:00:00:00"
+				text: layout.mac_start
+				enabled: wol.checked
+				validator:  RegExpValidator { regExp: /[0-9a-fA-F]{2}[:-]?[0-9a-fA-F]{2}[:-]?[0-9a-fA-F]{2}[:-]?[0-9a-fA-F]{2}[:-]?[0-9a-fA-F]{2}[:-]?[0-9a-fA-F]{2}/ }
+				onAccepted: print("Good")
+				focus: true
 			}
 		}
 	}
@@ -130,44 +154,19 @@ Item
 		Controls2.Button {
 			id: adder
 			icon.name: "entry-new"
-			// text: plasmoid.configuration.uuid
 			text: "Add new host"
 			onClicked: { table.currentRow=-1; editDialog.open()}
 		}
 		Controls2.Button {
 			id: editer
-			// text: plasmoid.configuration.uuid
 			icon.name: "entry-edit"
 			text: "Edit selected host"
 			onClicked: { editDialog.open() }
 			enabled: table.currentRow != -1
 		}
 	}
-	/*
-	 ColumnLayout {
-		 visible: false
-		 id: layout
-		 Controls.CheckBox {
-			 Layout.fillWidth: true
-			 readonly property string name: "Caps Lock"
-			 checked: plasmoid.configuration.key.indexOf(name) >= 0
-			 text: i18nc("@option:check", "Caps Lock")
-			 onCheckedChanged: root.configurationChanged()
-		 }
-		 Controls.CheckBox {
-			 Layout.fillWidth: true
-			 readonly property string name: "Num Lock"
-			 checked: plasmoid.configuration.key.indexOf(name) >= 0
-			 text: i18nc("@option:check", "Num Lock")
-			 onCheckedChanged: root.configurationChanged()
-		 }
-	 }
-	 */
 	Component.onCompleted: {
-		libraryModel = [
-			{ host: "doraemon", icon: "comic", wol: true, mac: "unknown" },
-			{ host: "scilla", icon: "accesspoint", wol: false, mac: "defined" }
-		]
-		table.currentRow = -1
+		var stored = plasmoid.configuration.json
+		libraryModel = stored=="" ? [] : JSON.parse(plasmoid.configuration.json)
 	}
 }
