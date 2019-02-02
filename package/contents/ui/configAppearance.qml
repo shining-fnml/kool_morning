@@ -24,11 +24,14 @@ import QtQuick.Layouts 1.1
 import org.kde.plasma.components 2.0 as PlasmaComponents
 import QtQuick.Dialogs 1.2
 
+import org.kde.plasma.private.kool_morning 1.0
+
 Item
 {
 	id: root
 	signal configurationChanged
 	property var libraryModel: {[]}
+	readonly property var iconModel: { return Custom.icons(Qt.resolvedUrl(".")) }
 
 	function table_update()
 	{
@@ -55,7 +58,7 @@ Item
 			var index = table.currentRow < 0 ? libraryModel.length : table.currentRow
 			libraryModel[index] = {
 				host: host.text,
-				icon: icon.text,
+				icon: icon.currentText,
 				wol: wol.checked,
 				mac: mac.text
 			}
@@ -79,7 +82,7 @@ Item
 				return table.currentRow < 0 ? "" : libraryModel[table.currentRow].host
 			}
 			property string icon_start: {
-				return table.currentRow < 0 ? "" : libraryModel[table.currentRow].icon
+				return iconModel.indexOf(table.currentRow < 0 ? "Generic" : libraryModel[table.currentRow].icon)
 			}
 			property bool wol_start: {
 				return table.currentRow < 0 ? false : libraryModel[table.currentRow].wol
@@ -100,10 +103,10 @@ Item
 			PlasmaComponents.Label {
 				text: "Type:"
 			}
-			PlasmaComponents.TextField {
+			Controls2.ComboBox {
 				id: icon
-				placeholderText: "icon"
-				text: layout.icon_start
+				currentIndex: layout.icon_start
+				model: iconModel
 				focus: true
 			}
 			PlasmaComponents.Label {
@@ -203,5 +206,6 @@ Item
 	Component.onCompleted: {
 		var stored = plasmoid.configuration.json
 		libraryModel = stored=="" ? [] : JSON.parse(plasmoid.configuration.json)
+		print("icons: " + iconModel);
 	}
 }
