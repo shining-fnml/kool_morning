@@ -36,12 +36,15 @@ Item {
 	property int tooltip_pointer: -1
 	readonly property string item_dir: Qt.resolvedUrl(".")
 
+	/* This unused property is the only way I've found so far to force the update of dynamic_model */
 	readonly property bool forced_update: {
 		print("forced_update")
 		var parsed = JSON.parse(plasmoid.configuration.json)
+		/*
 		if (! parsed.length) {
 			return false
 		}
+		*/
 		var model_new = [ ]
 		for (var iter in parsed) {
 			model_new[iter] = parsed[iter]
@@ -87,6 +90,10 @@ Item {
 		id: host
 		anchors.fill: parent
 		spacing: plasmoid.configuration.spacing
+		PlasmaComponents.Label {
+			text: "Open the configuration dialog to add some hosts"
+			visible: dynamic_model.length < 1
+		}
 		Repeater {
 			model: dynamic_model
 
@@ -115,8 +122,8 @@ Item {
 					}
 					ToolTip {
 						visible: root.tooltip_pointer == index
-						text: modelData.host
-						delay: 0
+						text: modelData.host + (modelData.status=="Offline" && modelData.wol ? " " + modelData.mac : "")
+						delay: 250
 					}
 					ColorOverlay {
 						anchors.fill: parent
@@ -126,18 +133,7 @@ Item {
 				}
 		}
 	}
-
-	readonly property string site_fn: {
-		var ret = "";
-		var found = false;
-		for (var v in dataSource.connectedSources) {
-			var source = dataSource.connectedSources[v]
-			ret = ret + source + "\n"
-		}
-		return ret
-	}
 	Component.onCompleted: {
 		Custom.someProperty = 2
-		// dynamic_model = JSON.parse(plasmoid.configuration.json)
 	}
 }
