@@ -55,6 +55,9 @@ Item
 		id: editDialog
 		title: table.currentRow == -1 ? "Add a new host" : "Edit this one"
 		onAccepted: {
+			if (!host.text.length) {
+				return
+			}
 			var index = table.currentRow < 0 ? libraryModel.length : table.currentRow
 			libraryModel[index] = {
 				host: host.text,
@@ -71,7 +74,9 @@ Item
 		(clickedButton == StandardButton.Ok ? "(OK)" : "(Ignore)")
 		onRejected: lastChosen.text = "Rejected " +
 		(clickedButton == StandardButton.Close ? "(Close)" : (clickedButton == StandardButton.Abort ? "(Abort)" : "(Cancel)"))
-		onButtonClicked: print("clicked button " + clickedButton)
+	        onButtonClicked: {
+		       print("clicked button " + clickedButton)
+	        }
 		*/
 		modality: Qt.WindowModal
 		standardButtons: StandardButton.Ok|StandardButton.Cancel
