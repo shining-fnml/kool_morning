@@ -1,5 +1,5 @@
-/*
-*  Copyright 2018 Aleix Pol Gonzalez <aleixpol@kde.org>
+/***************************************************************************
+ *   Copyright (C) 2019 by Shining the Master of Warders <shining@linuxcondom.net>                            *
 *
 *  This program is free software; you can redistribute it and/or modify
 *  it under the terms of the GNU General Public License as published by
