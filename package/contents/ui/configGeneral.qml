@@ -145,17 +145,18 @@ Item
 				PlasmaComponents.Label {
 					text: "Spacing:"
 				}
-				Controls.SpinBox {
+				Controls2.SpinBox {
 					id: spacing
 					value: plasmoid.configuration.spacing
+					onValueModified: root.configurationChanged()
 				}
 				PlasmaComponents.Label {
 					text: "Size:"
 				}
-				Controls.SpinBox {
+				Controls2.SpinBox {
 					id: iconsize
 					value: plasmoid.configuration.iconsize
-					minimumValue: 8
+					onValueModified: { root.configurationChanged() }
 				}
 			}
 		}
