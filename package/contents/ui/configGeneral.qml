@@ -155,6 +155,7 @@ Item
 				Controls.SpinBox {
 					id: iconsize
 					value: plasmoid.configuration.iconsize
+					minimumValue: 8
 				}
 			}
 		}
