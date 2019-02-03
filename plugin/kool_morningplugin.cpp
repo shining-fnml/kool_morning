@@ -28,6 +28,7 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QHostInfo>
+#include <QDir>
 
 #include <arpa/inet.h>
 
@@ -80,6 +81,20 @@ void mac_to_magic(unsigned char *buffer, QString &mac)
 		unsigned char *cursor = buffer+position*6;
 		memcpy((void *)cursor, address, 6);
 	}
+}
+
+QStringList Logic::icons(QString path)
+{
+	path.remove(0, 7);
+	QDir directory(path + "../images");
+	if (!directory.exists()) {
+		qDebug() << "directory does not exists";
+		return QStringList();
+	}
+	QStringList files = directory.entryList(QStringList() << "*.svg" << "*.SVG",QDir::Files);
+	files.replaceInStrings(".svg", "", Qt::CaseInsensitive);
+	return files;
+
 }
 
 void Logic::wake(QString host, QString mac)

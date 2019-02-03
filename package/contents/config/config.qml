@@ -24,6 +24,6 @@ ConfigModel {
     ConfigCategory {
          name: i18nc("@title", "General")
          icon: "preferences-desktop-user"
-         source: "configAppearance.qml"
+         source: "configGeneral.qml"
     }
 }

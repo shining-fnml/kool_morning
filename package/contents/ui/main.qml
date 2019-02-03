@@ -31,9 +31,24 @@ Item {
 	id: root
 
 	property int clicked_pointer: -1
-	property var dynamic_model: ({})
+	// property var dynamic_model: ({})
+	property var dynamic_model: JSON.parse(plasmoid.configuration.json)
 	property int tooltip_pointer: -1
 	readonly property string item_dir: Qt.resolvedUrl(".")
+
+	readonly property bool forced_update: {
+		print("forced_update")
+		var parsed = JSON.parse(plasmoid.configuration.json)
+		if (! parsed.length) {
+			return false
+		}
+		var model_new = [ ]
+		for (var iter in parsed) {
+			model_new[iter] = parsed[iter]
+		}
+		root.dynamic_model = model_new
+		return true
+	}
 
 	function dynamic_model_update()
 	{
@@ -122,11 +137,7 @@ Item {
 		return ret
 	}
 	Component.onCompleted: {
-		// available icons = [ "AccessPoint", "Generic", "Notebook", "Printer", "Desktop", "LinuxDesktop", "Phone", "Router" ]
-		var google = { host: "www.google.com", icon: "Generic", mac: "", status: "Unknown", wol: false }
-		var repubblica = { host: "www.repubblica.it", icon: "Generic", mac: "", status: "Unknown", wol: false }
-		var vicious = { host: "vicious", icon: "LinuxDesktop", mac: "00:C0:49:55:74:3E", status: "Unknown", wol: true }
-		dynamic_model = [ google, repubblica, vicious ]
 		Custom.someProperty = 2
+		// dynamic_model = JSON.parse(plasmoid.configuration.json)
 	}
 }

@@ -43,6 +43,7 @@ public:
 
     ~Logic() {}
 
+    Q_INVOKABLE QStringList icons(QString path);
     Q_INVOKABLE void wake(QString host, QString mac);
 
     int someProperty() const { return m_someProperty; }

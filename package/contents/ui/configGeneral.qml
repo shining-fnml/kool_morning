@@ -17,7 +17,6 @@
 */
 
 import QtQuick 2.2
-// import QtQuick.Controls 2.2 as Controls
 import QtQuick.Controls 1.2 as Controls
 import QtQuick.Controls 2.2 as Controls2
 import QtQuick.Layouts 1.1
@@ -49,6 +48,7 @@ Item
 
 	function saveTarget() {
 		plasmoid.configuration.json = JSON.stringify(libraryModel)
+		root.configurationChanged()
 	}
 
 	Dialog {
@@ -59,8 +59,9 @@ Item
 			libraryModel[index] = {
 				host: host.text,
 				icon: icon.currentText,
-				wol: wol.checked,
-				mac: mac.text
+				mac: mac.text,
+				status: "Unknown",
+				wol: wol.checked
 			}
 			table_update()
 			saveTarget()
