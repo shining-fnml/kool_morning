@@ -137,7 +137,7 @@ Item
 	Column{
 		anchors.fill: parent
 		id: climber
-		spacing: 5
+		spacing: 20
 		Controls2.GroupBox {
 			title: qsTr("Icons geometry")
 			RowLayout {
@@ -201,6 +201,17 @@ Item
 						onClicked: { editDialog.open() }
 						enabled: table.currentRow != -1
 					}
+					Controls2.Button {
+						id: remover
+						icon.name: "entry-delete"
+						text: "Remove selected host"
+						onClicked: {
+							libraryModel.splice(table.currentRow, 1)
+							table_update()
+							saveTarget()
+						}
+						enabled: table.currentRow != -1
+					}
 				}
 			}
 		}
@@ -208,6 +219,7 @@ Item
 	Component.onCompleted: {
 		var stored = plasmoid.configuration.json
 		libraryModel = stored=="" ? [] : JSON.parse(plasmoid.configuration.json)
+		table.currentRow = -1
 		print("icons: " + iconModel);
 	}
 }
