@@ -31,7 +31,6 @@ Item {
 	id: root
 
 	property int clicked_pointer: -1
-	// property var dynamic_model: ({})
 	property var dynamic_model: JSON.parse(plasmoid.configuration.json)
 	property int tooltip_pointer: -1
 	readonly property string item_dir: Qt.resolvedUrl(".")
@@ -83,11 +82,15 @@ Item {
 		}
 	}
 
+	Text {
+		text: i18n("icmp engine not working")
+		visible: ! dataSource.valid
+	}
 	PlasmaComponents.Button {
 		anchors.centerIn: parent
 		iconSource: "configure"
 		text: i18nc("@action:button", "Configure...")
-		visible: dynamic_model.length < 1
+		visible: dataSource.valid && dynamic_model.length < 1
 		onClicked: plasmoid.action("configure").trigger();
 	}
 	Flow {

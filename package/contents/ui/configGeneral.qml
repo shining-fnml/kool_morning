@@ -98,7 +98,7 @@ Item
 			}
 
 			PlasmaComponents.Label {
-				text: "Hostname or IP address:"
+				text: i18n("Hostname or IP address:")
 			}
 			PlasmaComponents.TextField {
 				id: host
@@ -107,7 +107,7 @@ Item
 				focus: true
 			}
 			PlasmaComponents.Label {
-				text: "Type:"
+				text: i18n("Type:")
 			}
 			Controls2.ComboBox {
 				id: icon
@@ -116,7 +116,7 @@ Item
 				focus: true
 			}
 			PlasmaComponents.Label {
-				text: "Wake on lan:"
+				text: i18n("Wake on lan:")
 			}
 			Controls2.CheckBox {
 				id: wol
@@ -125,7 +125,7 @@ Item
 				focus: true
 			}
 			PlasmaComponents.Label {
-				text: "Mac address:"
+				text: i18n("Mac address:")
 			}
 			PlasmaComponents.TextField {
 				id: mac
@@ -148,7 +148,7 @@ Item
 			RowLayout {
 				anchors.fill: parent
 				PlasmaComponents.Label {
-					text: "Polling interval in seconds:"
+					text: i18n("Polling interval in seconds:")
 				}
 				Controls2.SpinBox {
 					id: interval
@@ -162,7 +162,7 @@ Item
 			RowLayout {
 				anchors.fill: parent
 				PlasmaComponents.Label {
-					text: "Spacing:"
+					text: i18n("Spacing:")
 				}
 				Controls2.SpinBox {
 					id: spacing
@@ -170,7 +170,7 @@ Item
 					onValueModified: root.configurationChanged()
 				}
 				PlasmaComponents.Label {
-					text: "Size:"
+					text: i18n("Size:")
 				}
 				Controls2.SpinBox {
 					id: iconsize
@@ -211,20 +211,20 @@ Item
 					Controls2.Button {
 						id: adder
 						icon.name: "entry-new"
-						text: "Add new host"
+						text: i18n("Add new host")
 						onClicked: { table.currentRow=-1; editDialog.open()}
 					}
 					Controls2.Button {
 						id: editer
 						icon.name: "entry-edit"
-						text: "Edit selected host"
+						text: i18n("Edit selected host")
 						onClicked: { editDialog.open() }
 						enabled: table.currentRow != -1
 					}
 					Controls2.Button {
 						id: remover
 						icon.name: "entry-delete"
-						text: "Remove selected host"
+						text: i18n("Remove selected host")
 						onClicked: {
 							libraryModel.splice(table.currentRow, 1)
 							table_update()
