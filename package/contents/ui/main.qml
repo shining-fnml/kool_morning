@@ -48,7 +48,6 @@ Item {
 		root.dynamic_model = model_new
 		return true
 	}
-
 	function dynamic_model_update()
 	{
 		var model_new = [ ]
@@ -58,7 +57,6 @@ Item {
 		}
 		root.dynamic_model = model_new
 	}
-
 	readonly property QtObject source: PlasmaCore.DataSource {
 		id: dataSource
 		engine: "icmp"
@@ -81,16 +79,18 @@ Item {
 			dynamic_model_update()
 		}
 	}
+	readonly property bool icmpReady: dataSource.valid
 
 	Text {
 		text: i18n("icmp engine not working")
-		visible: ! dataSource.valid
+		// visible: ! dataSource.valid
+		visible: ! icmpReady
 	}
 	PlasmaComponents.Button {
 		anchors.centerIn: parent
 		iconSource: "configure"
 		text: i18nc("@action:button", "Configure...")
-		visible: dataSource.valid && dynamic_model.length < 1
+		visible: icmpReady && dynamic_model.length < 1
 		onClicked: plasmoid.action("configure").trigger();
 	}
 	Flow {
