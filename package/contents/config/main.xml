@@ -16,7 +16,7 @@
     </entry>
     <entry name="interval" type="Int">
 	    <label>Interval</label>
-	    <default>1</default>
+	    <default>4</default>
     </entry>
     <entry name="json" type="String">
     </entry>
