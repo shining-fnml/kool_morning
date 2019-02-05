@@ -73,7 +73,7 @@ Item {
 			}
 			return result
 		}
-		interval: 500
+		interval: plasmoid.configuration.interval * 1000
 		onSourceAdded: {
 			connectSource(source)
 		}
@@ -90,9 +90,12 @@ Item {
 		id: host
 		anchors.fill: parent
 		spacing: plasmoid.configuration.spacing
-		PlasmaComponents.Label {
-			text: "Open the configuration dialog to add some hosts"
+		PlasmaComponents.Button {
+			anchors.centerIn: parent
+			iconSource: "configure"
+			text: i18nc("@action:button", "Configure...")
 			visible: dynamic_model.length < 1
+			onClicked: plasmoid.action("configure").trigger();
 		}
 		Repeater {
 			model: dynamic_model

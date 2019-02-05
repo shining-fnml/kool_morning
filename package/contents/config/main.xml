@@ -14,6 +14,10 @@
 	    <label>Spacing</label>
 	    <default>5</default>
     </entry>
+    <entry name="interval" type="Int">
+	    <label>Interval</label>
+	    <default>1</default>
+    </entry>
     <entry name="json" type="String">
     </entry>
   </group>

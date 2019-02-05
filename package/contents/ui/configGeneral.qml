@@ -144,6 +144,20 @@ Item
 		id: climber
 		spacing: 20
 		Controls2.GroupBox {
+			title: qsTr("Data engine")
+			RowLayout {
+				anchors.fill: parent
+				PlasmaComponents.Label {
+					text: "Polling interval in seconds:"
+				}
+				Controls2.SpinBox {
+					id: interval
+					value: plasmoid.configuration.interval
+					onValueModified: root.configurationChanged()
+				}
+			}
+		}
+		Controls2.GroupBox {
 			title: qsTr("Icons geometry")
 			RowLayout {
 				anchors.fill: parent
