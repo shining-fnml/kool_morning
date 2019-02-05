@@ -39,15 +39,12 @@ Item {
 	/* This unused property is the only way I've found so far to force the update of dynamic_model */
 	readonly property bool forced_update: {
 		print("forced_update")
-		var parsed = JSON.parse(plasmoid.configuration.json)
-		/*
-		if (! parsed.length) {
-			return false
-		}
-		*/
 		var model_new = [ ]
-		for (var iter in parsed) {
-			model_new[iter] = parsed[iter]
+		if (plasmoid.configuration.json != "") {
+			var parsed = JSON.parse(plasmoid.configuration.json)
+			for (var iter in parsed) {
+				model_new[iter] = parsed[iter]
+			}
 		}
 		root.dynamic_model = model_new
 		return true
@@ -86,17 +83,17 @@ Item {
 		}
 	}
 
+	PlasmaComponents.Button {
+		anchors.centerIn: parent
+		iconSource: "configure"
+		text: i18nc("@action:button", "Configure...")
+		visible: dynamic_model.length < 1
+		onClicked: plasmoid.action("configure").trigger();
+	}
 	Flow {
 		id: host
 		anchors.fill: parent
 		spacing: plasmoid.configuration.spacing
-		PlasmaComponents.Button {
-			anchors.centerIn: parent
-			iconSource: "configure"
-			text: i18nc("@action:button", "Configure...")
-			visible: dynamic_model.length < 1
-			onClicked: plasmoid.action("configure").trigger();
-		}
 		Repeater {
 			model: dynamic_model
 
