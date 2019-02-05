@@ -23,7 +23,7 @@ find_package(Qt5 CONFIG REQUIRED COMPONENTS
 
 # plasmoid
 # TODO: adapt "org.kde.plasma" here & elsewhere if needed (see README)
-plasma_install_package(package org.kde.plasma.kool_morning)
+plasma_install_package(package net.linuxcondom.plasma.koolmorning)
 
 # qml extension plugin
 add_subdirectory(plugin)
