@@ -14,5 +14,5 @@ X-KDE-PluginInfo-Version=1.0.0
 X-KDE-PluginInfo-Website=https://github.com/shining-fnml/kool_morning
 X-KDE-PluginInfo-Category=System Monitoring
 X-KDE-PluginInfo-Depends=icmp
-X-KDE-PluginInfo-License=GPL
+X-KDE-PluginInfo-License=GPL-3.0+
 X-KDE-PluginInfo-EnabledByDefault=true
