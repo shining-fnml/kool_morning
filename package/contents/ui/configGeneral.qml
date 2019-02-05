@@ -34,11 +34,15 @@ Item
 
 	function table_update()
 	{
+		var position = table.currentRow
 		var model_new = [ ]
 		for (var iter in libraryModel) {
 			model_new[iter] = libraryModel[iter]
 		}
 		root.libraryModel = model_new
+		table.currentRow = position
+		plasmoid.configuration.json = JSON.stringify(libraryModel)
+		root.configurationChanged()
 	}
 
 	function saveConfig() {
@@ -46,9 +50,19 @@ Item
 		plasmoid.configuration.spacing = spacing.value
 	}
 
-	function saveTarget() {
-		plasmoid.configuration.json = JSON.stringify(libraryModel)
-		root.configurationChanged()
+	function moveEntry(direction) {
+		print("moveEntry()")
+		print("currentRow: " + table.currentRow)
+		var tmp = root.libraryModel[table.currentRow]
+		root.libraryModel[table.currentRow] = root.libraryModel[table.currentRow+direction]
+		root.libraryModel[table.currentRow+direction] = tmp
+		print("currentRow: " + table.currentRow)
+		table_update()
+		print("currentRow: " + table.currentRow)
+		table.selection.select(table.currentRow+direction)
+		print("currentRow: " + table.currentRow)
+		table.currentRow += direction
+		print("currentRow: " + table.currentRow)
 	}
 
 	Dialog {
@@ -67,7 +81,6 @@ Item
 				wol: wol.checked
 			}
 			table_update()
-			saveTarget()
 		}
 		/*
 		onAccepted: lastChosen.text = "Accepted " +
@@ -190,6 +203,7 @@ Item
 					Controls.TableViewColumn {
 						title: "Host"
 						role: "host"
+						width: 250
 					}
 					Controls.TableViewColumn {
 						title: "Icon"
@@ -209,28 +223,41 @@ Item
 				Row {
 					width: parent.width
 					Controls2.Button {
+						id: moverUp
+						icon.name: "arrow-up"
+						text: i18n("Move up")
+						onClicked: { moveEntry(-1) }
+						enabled: table.currentRow > 0
+					}
+					Controls2.Button {
 						id: adder
 						icon.name: "entry-new"
-						text: i18n("Add new host")
+						text: i18n("Add new host...")
 						onClicked: { table.currentRow=-1; editDialog.open()}
 					}
 					Controls2.Button {
 						id: editer
 						icon.name: "entry-edit"
-						text: i18n("Edit selected host")
+						text: i18n("Edit...")
 						onClicked: { editDialog.open() }
 						enabled: table.currentRow != -1
 					}
 					Controls2.Button {
 						id: remover
 						icon.name: "entry-delete"
-						text: i18n("Remove selected host")
+						text: i18n("Remove")
 						onClicked: {
 							libraryModel.splice(table.currentRow, 1)
 							table_update()
-							saveTarget()
 						}
 						enabled: table.currentRow != -1
+					}
+					Controls2.Button {
+						id: moverDown
+						icon.name: "arrow-down"
+						text: i18n("Move down")
+						onClicked: { moveEntry(+1) }
+						enabled: table.currentRow != -1 && libraryModel.length-table.currentRow > 1
 					}
 				}
 			}
@@ -240,6 +267,5 @@ Item
 		var stored = plasmoid.configuration.json
 		libraryModel = stored=="" ? [] : JSON.parse(plasmoid.configuration.json)
 		table.currentRow = -1
-		print("icons: " + iconModel);
 	}
 }
