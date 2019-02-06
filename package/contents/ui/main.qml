@@ -33,6 +33,7 @@ Item {
 	property int clicked_pointer: -1
 	property var dynamic_model: JSON.parse(plasmoid.configuration.json)
 	property int tooltip_pointer: -1
+	property int exitCode: -1
 	readonly property string item_dir: Qt.resolvedUrl(".")
 
 	/* This unused property is the only way I've found so far to force the update of dynamic_model */
@@ -56,6 +57,31 @@ Item {
 			model_new[iter] = { host: current.host, icon: current.icon, mac: current.mac, status: current.status, wol: current.wol }
 		}
 		root.dynamic_model = model_new
+	}
+	PlasmaCore.DataSource {
+		property string installationCommand: ""
+		id: executable
+		engine: "executable"
+		connectedSources: []
+		onNewData: {
+			if (sourceName == installationCommand) {
+				exitCode = data["exit code"]
+			}
+			disconnectSource(sourceName)
+		}
+
+		/*
+		function exec(cmd) {
+			var path = item_dir.replace(/file:\/\//, '') + "../scripts/" + cmd
+			print("exec: " + path)
+			connectSource(path)
+		}
+		*/
+		function icmpinstall() {
+			var path = item_dir.replace(/file:\/\//, '') + "../scripts/icmpinstall.sh"
+			installationCommand = "konsole -e " + path
+			connectSource(installationCommand)
+		}
 	}
 	readonly property QtObject source: PlasmaCore.DataSource {
 		id: dataSource
@@ -81,10 +107,21 @@ Item {
 	}
 	readonly property bool icmpReady: dataSource.valid
 
+	ColumnLayout{
+		visible: !icmpReady && exitCode!=0
+		Text {
+			text: i18n("icmp engine not working")
+		}
+		PlasmaComponents.Button {
+			anchors.centerIn: parent
+			iconSource: "run-build-install-root"
+			text: i18nc("@action:button", "Install...")
+			onClicked: executable.icmpinstall()
+		}
+	}
 	Text {
-		text: i18n("icmp engine not working")
-		// visible: ! dataSource.valid
-		visible: ! icmpReady
+		visible: !icmpReady && !exitCode
+		text: i18n("icmp engine installation completed.\nRestart plasma shell with the following commands in a terminal:\nkbuildsycoca5 && kquitapp5 plasmashell && kstart5 plasmashell")
 	}
 	PlasmaComponents.Button {
 		anchors.centerIn: parent
@@ -97,6 +134,7 @@ Item {
 		id: host
 		anchors.fill: parent
 		spacing: plasmoid.configuration.spacing
+		visible: icmpReady && dynamic_model.length > 0
 		Repeater {
 			model: dynamic_model
 
