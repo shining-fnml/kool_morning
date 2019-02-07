@@ -19,18 +19,32 @@
 import QtQuick 2.2
 import QtQuick.Controls 1.2 as Controls
 import QtQuick.Controls 2.2 as Controls2
-import QtQuick.Layouts 1.1
-import org.kde.plasma.components 2.0 as PlasmaComponents
 import QtQuick.Dialogs 1.2
-
-import org.kde.plasma.private.kool_morning 1.0
+import QtQuick.Layouts 1.1
+import Qt.labs.folderlistmodel 2.1
+import org.kde.plasma.components 2.0 as PlasmaComponents
+import org.kde.plasma.core 2.0 as PlasmaCore
 
 Item
 {
 	id: root
 	signal configurationChanged
 	property var libraryModel: {[]}
-	readonly property var iconModel: { return Custom.icons(Qt.resolvedUrl(".")) }
+	readonly property var iconModel: {
+		var result = []
+		for (var iter = 0; iter < foldermodel.count; iter++) {
+			result.push(foldermodel.get(iter, "fileName").split(".").shift())
+		}
+		return result
+	}
+	FolderListModel {
+		id: foldermodel
+		folder: Qt.resolvedUrl(".") + "../images/"
+		nameFilters: ["[A-Z]*.svg"]
+		showDirs: false
+		showOnlyReadable: true
+		sortField: FolderListModel.Name
+	}
 
 	function table_update()
 	{

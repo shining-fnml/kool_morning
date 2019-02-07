@@ -113,9 +113,8 @@ Item {
 			text: i18n("icmp engine not working")
 		}
 		PlasmaComponents.Button {
-			anchors.centerIn: parent
 			iconSource: "run-build-install-root"
-			text: i18nc("@action:button", "Install...")
+			text: i18nc("@action:button", "Install ICMP engine...")
 			onClicked: executable.icmpinstall()
 		}
 	}
