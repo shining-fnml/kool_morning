@@ -5,5 +5,5 @@ wake-on-lan.
 The plasmoid requires the icmp data engine to work, currently available
 at https://github.com/shining-fnml/icmpengine (plasma5 branch).
 The dataengine evaluates the status on basis of ping(8), which is
-executed every 5 secs. Only the poll interval of the data engione is
+executed every 5 secs. Only the poll interval of the data engine is
 configurable.
