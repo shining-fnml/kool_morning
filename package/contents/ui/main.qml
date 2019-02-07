@@ -177,6 +177,5 @@ Item {
 		}
 	}
 	Component.onCompleted: {
-		Custom.someProperty = 2
 	}
 }
