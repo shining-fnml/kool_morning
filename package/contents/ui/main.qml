@@ -155,7 +155,10 @@ Item {
 								root.clicked_pointer = index } }
 						onReleased: {
 							if (modelData.status=="Offline" && modelData.wol) {
-								Custom.wake(modelData.host, modelData.mac) }
+								var wol = modelData.host + "/" + modelData.mac
+								dataSource.connectSource(wol)
+								dataSource.disconnectSource(wol)
+							}
 							root.clicked_pointer = -1 }
 						onEntered: { root.tooltip_pointer = index }
 						onExited: { root.tooltip_pointer = -1 }
