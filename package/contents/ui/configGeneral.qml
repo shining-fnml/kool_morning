@@ -66,17 +66,12 @@ Item
 
 	function moveEntry(direction) {
 		print("moveEntry()")
-		print("currentRow: " + table.currentRow)
 		var tmp = root.libraryModel[table.currentRow]
 		root.libraryModel[table.currentRow] = root.libraryModel[table.currentRow+direction]
 		root.libraryModel[table.currentRow+direction] = tmp
-		print("currentRow: " + table.currentRow)
 		table_update()
-		print("currentRow: " + table.currentRow)
 		table.selection.select(table.currentRow+direction)
-		print("currentRow: " + table.currentRow)
 		table.currentRow += direction
-		print("currentRow: " + table.currentRow)
 	}
 
 	Dialog {
@@ -114,9 +109,6 @@ Item
 			property string host_start: {
 				return table.currentRow < 0 ? "" : libraryModel[table.currentRow].host
 			}
-			property string icon_start: {
-				return iconModel.indexOf(table.currentRow < 0 ? "Generic" : libraryModel[table.currentRow].icon)
-			}
 			property bool wol_start: {
 				return table.currentRow < 0 ? false : libraryModel[table.currentRow].wol
 			}
@@ -138,7 +130,6 @@ Item
 			}
 			Controls2.ComboBox {
 				id: icon
-				currentIndex: layout.icon_start
 				model: iconModel
 				focus: true
 			}
@@ -162,6 +153,11 @@ Item
 				validator:  RegExpValidator { regExp: /[0-9a-fA-F]{2}[:-]?[0-9a-fA-F]{2}[:-]?[0-9a-fA-F]{2}[:-]?[0-9a-fA-F]{2}[:-]?[0-9a-fA-F]{2}[:-]?[0-9a-fA-F]{2}/ }
 				onAccepted: print("Good")
 				focus: true
+			}
+			states: State {
+				name: "folderReady"
+				when: (foldermodel.status == FolderListModel.Ready)
+				PropertyChanges { target: icon; currentIndex: iconModel.indexOf(table.currentRow < 0 ? "Generic" : libraryModel[table.currentRow].icon) }
 			}
 		}
 	}
