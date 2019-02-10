@@ -74,8 +74,7 @@ fi
 [ -d "build" ] || mkdir build
 if [ "$uninstall" = "n" ] ; then
 	cd build
-	cmake -DCMAKE_INSTALL_PREFIX=$CMAKE_INSTALL_PREFIX ..
-	make
+	cmake -DCMAKE_INSTALL_PREFIX=$CMAKE_INSTALL_PREFIX .. && make || exit $?
 fi
 if [ "$systemwide" = "y" ] ; then
 	if [ "$uninstall" = "y" ] ; then
