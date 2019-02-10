@@ -1,4 +1,7 @@
 #!/bin/sh
+# Copyright (C) 2019 by Shining the Master of Warders <shining@linuxcondom.net>                            *
+# This file is part of "Kool Morning"
+# Read COPYING for license details
 force="n"
 plasma_restart="n"
 scratch="n"
@@ -6,6 +9,7 @@ systemwide="n"
 usage="n"
 uninstall="n"
 program=$0
+plasmoid="kool_morning"
 CMAKE_INSTALL_PREFIX="/usr"
 package="net.linuxcondom.plasma.koolmorning"
 local_install_dir="$HOME/.local/share/plasma/plasmoids/$package"
@@ -105,7 +109,14 @@ else
 fi
 
 if [ "$uninstall" = "n" ] ; then
-	zip -r foo package -x \*.qmlc
+	echo "plasmoid: $plasmoid"
+	ln -s package $plasmoid
+	echo $PWD
+	echo -n "plasmoid dir: "
+	ls -d $plasmoid
+	echo zip -r $plasmoid $plasmoid -x \*.qmlc
+	zip -r $plasmoid.plasmoid $plasmoid -x \*.qmlc
+	rm $plasmoid
 fi
 if [ "$plasma_restart" = "y" ] ; then
 	kbuildsycoca5 && kquitapp5 plasmashell && kstart5 plasmashell
