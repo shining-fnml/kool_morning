@@ -1,5 +1,6 @@
 #!/bin/sh
 force="n"
+plasma_restart="n"
 scratch="n"
 systemwide="n"
 usage="n"
@@ -32,12 +33,27 @@ systemwide_uninstall()
 	sudo rm -rf $systemwide_install_dir $CMAKE_INSTALL_PREFIX/share/metainfo/$package.appdata.xml $CMAKE_INSTALL_PREFIX/share/kservices5/plasma-applet-$package.desktop
 }
 
-while getopts dfhlsuw arg; do
+usage()
+{
+	echo "Usage:\t$program [[-d] | [-h] | [[-f][-l] | [-w]] [[-p][-s]|[-u]]]"
+	echo "\t\t-d = detect current installations"
+	echo "\t\t-f = force. Uninstall and then install again instead of upgrade"
+	echo "\t\t-h = print this help message and exit"
+	echo "\t\t-l = local operations [default]"
+	echo "\t\t-p = restart plasma shell"
+	echo "\t\t-s = rebuild from scratch"
+	echo "\t\t-u = uninstall"
+	echo "\t\t-w = system wide operations"
+	exit 0
+}
+
+while getopts dfhlpsuw arg; do
 	case "$arg" in
-		d)	detect ;;
+		d)	detect;;
 		f)	force="y";;
-		h)	usage="y";;
+		h)	usage;;
 		l)	systemwide="n";;
+		p)	plasma_restart="y";;
 		s)	scratch="y";;
 		u)	uninstall="y";;
 		w)	systemwide="y";;
@@ -46,16 +62,9 @@ while getopts dfhlsuw arg; do
 		esac
 done
 # shift $OPTIND-1
-if [ "$usage" = "y" ] ; then
-	echo "Usage:\t$program [[-d] | [-f][-h][-l][-s][-w]]"
-	echo "\t\t-d = detect current installations"
-	echo "\t\t-f = force. Uninstall and then install again instead of upgrade"
-	echo "\t\t-h = print this help message and exit"
-	echo "\t\t-l = local operations [default]"
-	echo "\t\t-s = rebuild from scratch"
-	echo "\t\t-u = uninstall"
-	echo "\t\t-w = system wide operations"
-	exit 0
+if [ "$plasma_restart" = "y" -a "$uninstall" = "y" ] ; then
+	echo "-p and -u are mutually exclusive. Exiting" > /dev/stderr
+	exit 3
 fi
 [ "$scratch" = "y" ] && rm -fr build
 [ -d "build" ] || mkdir build
@@ -92,4 +101,8 @@ else
 		fi
 		sudo make install
 	fi
+fi
+
+if [ "$plasma_restart" = "y" ] ; then
+	kbuildsycoca5 && kquitapp5 plasmashell && kstart5 plasmashell
 fi
