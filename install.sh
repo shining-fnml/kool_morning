@@ -73,7 +73,18 @@ if [ "$uninstall" = "n" ] ; then
 	cmake -DCMAKE_INSTALL_PREFIX=$CMAKE_INSTALL_PREFIX ..
 	make
 fi
-if [ "$systemwide" = "n" ] ; then
+if [ "$systemwide" = "y" ] ; then
+	if [ "$uninstall" = "y" ] ; then
+		systemwide_uninstall
+	else
+		if [ -d "$systemwide_install_dir" ] ; then
+			echo "Removing old installation" > /dev/stderr
+			systemwide_uninstall
+		fi
+		sudo make install
+		cd ..
+	fi
+else
 	cd ..
 	old="n"
 	[ -d "$HOME/.local/share/plasma/plasmoids/$package" ] && old="y"
@@ -91,18 +102,12 @@ if [ "$systemwide" = "n" ] ; then
 	else
 		kpackagetool5 -t Plasma/Applet --install package && echo "Package installed"
 	fi
-else
-	if [ "$uninstall" = "y" ] ; then
-		systemwide_uninstall
-	else
-		if [ -d "$systemwide_install_dir" ] ; then
-			echo "Removing old installation" > /dev/stderr
-			systemwide_uninstall
-		fi
-		sudo make install
-	fi
 fi
 
+if [ "$uninstall" = "n" ] ; then
+	zip -r foo package -x \*.qmlc
+fi
 if [ "$plasma_restart" = "y" ] ; then
 	kbuildsycoca5 && kquitapp5 plasmashell && kstart5 plasmashell
 fi
+exit 0

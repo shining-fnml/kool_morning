@@ -70,15 +70,8 @@ Item {
 			disconnectSource(sourceName)
 		}
 
-		/*
-		function exec(cmd) {
-			var path = item_dir.replace(/file:\/\//, '') + "../scripts/" + cmd
-			print("exec: " + path)
-			connectSource(path)
-		}
-		*/
 		function icmpinstall() {
-			var path = item_dir.replace(/file:\/\//, '') + "../scripts/icmpinstall.sh"
+			var path = item_dir.replace(/file:\/\//, '') + "../code/icmpinstall.sh"
 			installationCommand = "konsole -e " + path
 			connectSource(installationCommand)
 		}
