@@ -2,6 +2,7 @@
 # Copyright (C) 2019 by Shining the Master of Warders <shining@linuxcondom.net>                            *
 # This file is part of "Kool Morning"
 # Read COPYING for license details
+detect="n"
 force="n"
 plasma_restart="n"
 scratch="n"
@@ -9,13 +10,11 @@ systemwide="n"
 usage="n"
 uninstall="n"
 program=$0
-plasmoid="kool_morning"
 CMAKE_INSTALL_PREFIX="/usr"
-package="net.linuxcondom.plasma.koolmorning"
 local_install_dir="$HOME/.local/share/plasma/plasmoids/$package"
 systemwide_install_dir="$CMAKE_INSTALL_PREFIX/share/plasma/plasmoids/$package"
 
-detect()
+detect_installations()
 {
 	count=0
 	[ -d "$systemwide_install_dir" ] && count=$(( count + 1 ))
@@ -39,21 +38,22 @@ systemwide_uninstall()
 
 usage()
 {
-	echo "Usage:\t$program [[-d] | [-h] | [[-f][-l] | [-w]] [[-p][-s]|[-u]]]"
-	echo "\t\t-d = detect current installations"
-	echo "\t\t-f = force. Uninstall and then install again instead of upgrade"
-	echo "\t\t-h = print this help message and exit"
-	echo "\t\t-l = local operations [default]"
-	echo "\t\t-p = restart plasma shell"
-	echo "\t\t-s = rebuild from scratch"
-	echo "\t\t-u = uninstall"
-	echo "\t\t-w = system wide operations"
+	echo "Usage:\t$program [[-d] | [-h] | [[-f][-l] | [-w]] [[-p][-s]|[-u]]] [dir]"
+	echo "\t-d = detect current installations"
+	echo "\t-f = force. Uninstall and then install again instead of upgrade"
+	echo "\t-h = print this help message and exit"
+	echo "\t-l = local operations (default)"
+	echo "\t-p = restart plasma shell"
+	echo "\t-s = rebuild from scratch"
+	echo "\t-u = uninstall"
+	echo "\t-w = system wide operations"
+	echo "\tdir = the directory containing metadata.desktop (defaults to 'package')"
 	exit 0
 }
 
 while getopts dfhlpsuw arg; do
 	case "$arg" in
-		d)	detect;;
+		d)	detect="y";;
 		f)	force="y";;
 		h)	usage;;
 		l)	systemwide="n";;
@@ -65,7 +65,18 @@ while getopts dfhlpsuw arg; do
 			exit 1;;
 		esac
 done
-# shift $OPTIND-1
+shift $(( OPTIND-1 ))
+metadir="${1:-package}"
+metadata="$metadir/metadata.desktop"
+if [ ! -r "$metadata" ] ; then
+	echo "cannot read $metadata. Exiting"
+	exit 4
+fi
+package=`grep X-KDE-PluginInfo-Name $metadata|cut -f2 -d = | tr -d '[:space:]'`
+plasmoid=${package##*.}
+
+[ "$detect" = "y" ] && detect_installations
+
 if [ "$plasma_restart" = "y" -a "$uninstall" = "y" ] ; then
 	echo "-p and -u are mutually exclusive. Exiting" > /dev/stderr
 	exit 3
@@ -96,14 +107,14 @@ else
 			echo "No previous installation found. Exiting" > /dev/stderr
 			exit 2
 		fi
-		kpackagetool5 -t Plasma/Applet --remove $package
+		kpackagetool5 -t Plasma/Applet --remove $package || exit $?
 	elif [ "$force" = "y" ] ; then
-		kpackagetool5 -t Plasma/Applet --remove $package
-		kpackagetool5 -t Plasma/Applet --install package && echo "Package reinstalled"
+		kpackagetool5 -t Plasma/Applet --remove $package || exit $?
+		kpackagetool5 -t Plasma/Applet --install package && echo "Package reinstalled" || exit $?
 	elif [ "$old" = "y" ] ; then
-		kpackagetool5 -t Plasma/Applet --upgrade package && echo "Package upgraded"
+		kpackagetool5 -t Plasma/Applet --upgrade package && echo "Package upgraded" || exit $?
 	else
-		kpackagetool5 -t Plasma/Applet --install package && echo "Package installed"
+		kpackagetool5 -t Plasma/Applet --install package && echo "Package installed" || exit $?
 	fi
 fi
 
@@ -114,10 +125,10 @@ if [ "$uninstall" = "n" ] ; then
 	echo -n "plasmoid dir: "
 	ls -d $plasmoid
 	echo zip -r $plasmoid $plasmoid -x \*.qmlc
-	zip -r $plasmoid.plasmoid $plasmoid -x \*.qmlc
+	zip -r $plasmoid.plasmoid $plasmoid -x \*.qmlc .\*.swp
 	rm $plasmoid
 fi
 if [ "$plasma_restart" = "y" ] ; then
-	kbuildsycoca5 && kquitapp5 plasmashell && kstart5 plasmashell
+	kbuildsycoca5 && kquitapp5 plasmashell && kstart5 plasmashell || exit $?
 fi
 exit 0

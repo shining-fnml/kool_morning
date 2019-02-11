@@ -1,5 +1,5 @@
 .*.swp
 build
-kool_morning.plasmoid
+koolmorning.plasmoid
 package/contents/ui/.*.swp
 package/contents/*/*.qmlc
