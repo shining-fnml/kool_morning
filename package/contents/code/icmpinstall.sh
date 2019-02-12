@@ -13,15 +13,33 @@ function check_exe()
 	echo "[missing]"
 	return 1
 }
-echo "This installation script requires root privileges."
-echo -n "Can you gain them? [y/n] "
-read
-if [ "x$REPLY" != "xy" ] ; then
-	echo
-	echo "Ask you system administrator to install icmpengine"
-	echo "from $giturl"
-	retcode=1
-else
+echo "This installation script requires super user powers"
+power=""
+while [ "x$power" = "x" ] ; do
+	echo "How are you going to gain root privileges?"
+	echo "1) sudo"
+	echo "2) su"
+	echo "3) I don't know / I can't"
+	read
+	case "$REPLY" in
+		"1")
+			power="sudo"
+			break
+			;;
+		"2")
+			power="su"
+			break
+			;;
+		"3")
+			echo
+			echo "Sorry. You better ask your system administrator to install icmpengine"
+			echo "from $giturl"
+			power="no"
+			retcode=1
+			break
+	esac
+done
+if [ "$power" != "no" ] ; then
 	requires="cmake g++ git make"
 	sum=0
 	for checking in $requires ; do
@@ -39,10 +57,16 @@ else
 		mkdir build
 		cd build
 		cmake -DCMAKE_INSTALL_PREFIX=/usr .. && make
-		sudo make install || su -c "make install"
+		if [ "$power" = "sudo" ] ; then
+			sudo make install || retcode=$?
+		elif [ "$power" = "su" ] ; then
+			su -c "make install" || retcode=$?
+		fi
 	fi
 fi
 echo
 echo "Press return to exit"
+echo "retcode: $retcode"
 read a
+[ "$retcode" -ne 0 ] && kill -USR1 $PPID
 exit $retcode

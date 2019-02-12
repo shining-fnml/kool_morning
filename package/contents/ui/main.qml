@@ -103,7 +103,7 @@ Item {
 	ColumnLayout{
 		visible: !icmpReady && exitCode!=0
 		Text {
-			text: i18n("icmp engine not working")
+			text: i18n("icmp engine not working. Exit code: "+exitCode)
 		}
 		PlasmaComponents.Button {
 			iconSource: "run-build-install-root"
